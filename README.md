@@ -1,4 +1,3 @@
-
 Logging support for Android devices
 ===================================
 
@@ -16,10 +15,7 @@ enter will be required as a parameter when using the Logger.
 Retrieve the userkey corresponding to your account. see the logentries getsetup
 page -> Go with the API -> Android -> Getting the user key
 
-
-Add ``le_android.jar`` to the build path of your Android project.  In the
-Eclipse IDE, this is done by right-clicking the file and selecting Build Path
--> Add to Build Path.
+Next, download the android source code from the logentries github account and add the android package to your Android project.
 	
 Add the android.permission.INTERNET <uses-permission> to the project manifest
 file.
