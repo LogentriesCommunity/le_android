@@ -68,7 +68,6 @@ public class LEHttpClient extends DefaultHttpClient{
 		try {
 			String path = "/" + userkey + "/hosts/" + host + "/" + logname + "/";
 			URI address = new URI("https", null, "api.logentries.com", 443, path, "realtime=1", null);
-			System.out.println("Sending: " + requestData);
 			
 			HttpPut httpPut = new HttpPut(address);
 			HttpEntity entity = new StringEntity(requestData);

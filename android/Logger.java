@@ -90,9 +90,7 @@ public class Logger {
 	 * @return true if events are to be uploaded immediately, false otherwise
 	 */
 	public boolean getImmediateUpload() {
-		System.out.println("trying");
 		if(IMMEDIATE_UPLOAD == null) {
-			System.out.println("GETTING UPLOAD MODE");
 			// Get upload preference from config file
 			SharedPreferences settings = context.getSharedPreferences(PREFS_FILE, 0);
 			IMMEDIATE_UPLOAD = settings.getBoolean("immediate_upload", true);
@@ -164,7 +162,6 @@ public class Logger {
 	protected void process(String log, String severity) {
 		String event = getTimestamp() + " severity=" + severity + ": " + log;
 		IMMEDIATE_UPLOAD = getImmediateUpload();
-		System.out.println(IMMEDIATE_UPLOAD);
 		if(IMMEDIATE_UPLOAD) {
 			upload(event);
 		} else {
@@ -181,7 +178,6 @@ public class Logger {
 			try{
 				upload(log);
 			} catch(RejectedExecutionException e) {
-				System.out.println("Too many threads");
 			}
 		}
 	}
