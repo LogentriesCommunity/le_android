@@ -14,7 +14,7 @@ import android.os.Handler;
  * Controls the uploading of logs at a fixed interval. 
  * @author Caroline Fenlon <carfenlon@gmail.com>
  */
-public class TimedLogger extends Logger {
+public class TimedLogger extends AndroidLogger {
 	private static TimedLogger loggerInstance;
 	private Handler handler;
 	
