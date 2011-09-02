@@ -81,6 +81,7 @@ public class Le extends Handler {
 		factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 		Socket s = new Socket("api.logentries.com", 443);
 		sock = (SSLSocket)factory.createSocket(s, "", 0, false);
+		sock.setTcpNoDelay(true);
 		conn = sock.getOutputStream();
 		String buff = "PUT /" + key + "/hosts/" + location + "/?realtime=1 HTTP/1.1\r\n";
 		conn.write(buff.getBytes(), 0, buff.length());
