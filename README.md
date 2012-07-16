@@ -31,7 +31,7 @@ Where
 
  - context: use ``getApplicationContext()``
  
- - userkey: see the logentries getsetup page -> Go with the API -> Android -> Getting the user key
+ - userkey: Obtained above via the Logentries UI, after clicking Account, it's in grey on the top right.
  
  - hostname: the name selected when creating the host
  - logname: the name you wish to call the log file to store events - note: a
