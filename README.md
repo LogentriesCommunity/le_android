@@ -12,7 +12,7 @@ Set up an account with Logentries at <https://logentries.com/>, and register a
 host by selecting Hosts and then New (in the top right).  The host name you
 enter will be required as a parameter when using the AndroidLogger.
 	
-Retrieve the userkey corresponding to your account. see the logentries getsetup
+Retrieve the userkey corresponding to your account. see the `https://logentries.com/getsetup/`
 page -> Go with the API -> Android -> Getting the user key
 
 Next, download the android source code from the logentries github account and add the le package to your Android project.
