@@ -29,7 +29,7 @@ To create an instance of the Logger object in an Activity class:
     AndroidLogger logger = AndroidLogger.getLogger(Context context, String userkey, String hostname, String logname);
 Where
 
- - context: use ``getApplicationContext()``
+ - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``. 
  
  - userkey: Obtained above via the Logentries UI, after clicking Account, it's in grey on the top right.
  
