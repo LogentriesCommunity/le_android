@@ -1,4 +1,4 @@
-package le.android;
+package com.logentries.android;
 
 /*
  * Logentries Android Logger
@@ -31,7 +31,7 @@ import android.content.Context;
 public class AndroidLogger{
 	private static AndroidLogger loggerInstance;
 	
-	private Le le = null;
+	private LogentriesAndroid le = null;
 	private String logFileAddress = "logentries_saved_logs.log";
 	private Logger logger = null;
 	private boolean immediateUpload = true;
@@ -39,33 +39,28 @@ public class AndroidLogger{
 	protected List<String> logList = null;
 	
 	/**
-	 * When subclassing: just call super(context, userkey, hostname, logname) in constructor
+	 * When subclassing: just call super(context, token) in constructor
 	 * @param context <i>getApplicationContext()</i> in an Activity
-	 * @param userkey key corresponding to account
-	 * @param hostname host to store logs
-	 * @param logname file to store events
+	 * @param token uuid corresponding to logfile on Logentries
 	 */
-	protected AndroidLogger(Context context, String userkey, String hostname, String logname) {
+	protected AndroidLogger(Context context, String token) {
 		this.context = context;
-		logger = Logger.getLogger("root");
-		String location = hostname + "/" + logname;
-		le = new Le(userkey, location);
-		logger.addHandler(le);
-		logList = new ArrayList<String>();
-		getSavedLogs();
+		//logger = Logger.getLogger("root");
+		le = new LogentriesAndroid(token, true);
+		//logger.addHandler(le);
+		//logList = new ArrayList<String>();
+		//getSavedLogs();
 	}
 	
 	/**
 	 * Singleton - only one Logger object allowed
 	 * @param context <i>getApplicationContext()</i> in Activity
-	 * @param userkey key corresponding to app developer's Logentries account
-	 * @param hostname host to store logs
-	 * @param logname file to store uploaded events
+	 * @param token uuid corresponding to logfile on Logentries
 	 * @return an instance of the Logger object
 	 */
-	public static synchronized AndroidLogger getLogger(Context context, String userkey, String hostname, String logname) {
+	public static synchronized AndroidLogger getLogger(Context context, String token) {
 		if(loggerInstance == null) {
-			loggerInstance = new AndroidLogger(context, userkey, hostname, logname);
+			loggerInstance = new AndroidLogger(context, token);
 		}
 		return loggerInstance;
 	}
@@ -162,7 +157,7 @@ public class AndroidLogger{
 			toUpload += event;
 			it.remove();
 		}
-		le.upload(toUpload);
+		//le.upload(toUpload);
 	}
 	
 	/**

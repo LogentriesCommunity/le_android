@@ -1,9 +1,10 @@
-package le.android;
+package com.logentries.android;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -13,107 +14,269 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import android.util.Log;
+
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 /**
  * @author Mark Lacomber, marklacomber@gmail.com - 22/08/11
  * modified by Caroline Fenlon - 29/08/11
- * 	- added custom SLLSOcketFactory
+ * 	- added custom SLLSocketFactory
  * 	- added format, upload methods
  * 	- altered publish method
+ * modified by Mark - 10/12/12
+ * -  changed to Token-based logging
+ * -  Asynchronous logging
  */
-public class Le extends Handler {
+public class LogentriesAndroid extends Handler {
 
-	private SSLSocket sock;
-	private OutputStream conn;
-	private String m_key;
-	private String m_location;
+	/*
+	 * Constants
+	 */
+	
+	/** Size of the internal event queue. */
+	static final int QUEUE_SIZE = 32768;
+	/** Logentries API server address */
+	static final String LE_API = "api.logentries.com";
+	/** Logentries Port number for Token-Based Logging */
+	static final int LE_PORT = 10000;
+	/** Tag for Logentries Debug Messages to LogCat */
+	static final String TAG = "Logentries";
+	/** Minimal delay between attempts to reconnect in milliseconds. */
+	static final int MIN_DELAY = 100;
+	/** Maximal delay between attempts to reconnect in milliseconds. */
+	static final int MAX_DELAY = 10000;
+	/** UTF-8 output character set. */
+	static final Charset UTF8 = Charset.forName( "UTF-8");
+	/** Error message displayed when invalid API key is detected. */
+	static final String INVALID_TOKEN = "It appears your Token UUID parameter is incorrect!";
+	/*
+	 * Fields
+	 */
+	/** Destination token */
+	String m_token;
+	/** Debug flag */
+	boolean debug;
+	/** Indicator if the socket appender has been started. */
+	boolean started;
+	
+	/** Asynchronous socket appender */
+	SocketAppender appender;
+	/** Message queue. */
+	ArrayBlockingQueue<String> queue;
+	
+	/*
+	 * Internal classes
+	 */
 	
 	/**
-	 * Connects to logentries.com and uploads log events
-	 * @param key account userkey
-	 * @param location hostname/filename
+	 * Asynchronous over the socket appender
+	 * 
+	 * @author Mark Lacomber
+	 *
 	 */
-	public Le(String key, String location)
-	{
-		this.m_key = key;
-		this.m_location = location;
+	class SocketAppender extends Thread {
+		/** Socket connection. */
+		Socket socket;
+		/** Output log stream. */
+		OutputStream stream;
+		/** Random number generator for delays between reconnection attempts. */
+		final Random random = new Random();
 		
-		try{
-			this.createSocket(key, location);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (KeyManagementException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (CertificateException e) {
-			e.printStackTrace();
-		} catch (KeyStoreException e) {
-			e.printStackTrace();
-		} catch (UnrecoverableKeyException e) {
-			e.printStackTrace();
+		/**
+		 * Initializes the socket appender
+		 */
+		SocketAppender(){
+			super("Logentries Socket Appender");
+			// Don't block shut down
+			setDaemon(true);
+		}
+		
+		/**
+		 * Opens connection to Logentries
+		 * 
+		 * @throws IOException
+		 * @throws CertificateException 
+		 */
+		void openConnection() throws IOException {
+			try{
+				dbg( "Reopening connection to Logentries API server");
+
+				socket = new Socket(LE_API, LE_PORT);
+				stream = socket.getOutputStream();
+			
+				dbg( "Connection established");
+			} catch (Exception e){
+				
+			}
+		}
+		
+		/**
+		 * Tries to open connection to Logentries until it succeeds
+		 * 
+		 * @throws InterruptedException
+		 */
+		void reopenConnection() throws InterruptedException {
+			// Close the previous connection
+			closeConnection();
+			
+			//Try to open the connection until we get through
+			int root_delay = MIN_DELAY;
+			while(true)
+			{
+				try{
+					openConnection();
+					
+					// Success, leave
+					return;
+				} catch (IOException e) {
+					// Get information if in debug mode
+					dbg( "Unable to connect to Logentries");
+					e.printStackTrace();
+				}
+				
+				// Wait between connection attempts
+				root_delay *= 2;
+				if (root_delay > MAX_DELAY)
+					root_delay= MAX_DELAY;
+				int wait_for = root_delay + random.nextInt( root_delay);
+				dbg( "Waiting for " + wait_for + "ms");
+				Thread.sleep( wait_for);
+			}
+		}
+		
+		/**
+		 * Closes the connection. Ignore errors
+		 */
+		void closeConnection() {
+			if (stream != null){
+				try{
+					stream.close();
+				} catch (IOException e){
+					// Nothing we can do here
+				}
+			}
+			stream = null;
+			if (socket != null) {
+				try{
+					socket.close();
+				} catch (IOException e){
+					// Nothing we can do here
+				}
+			}
+			socket = null;
+		}
+		
+		/**
+		 * Initializes the connection and starts to log
+		 */
+		@Override
+		public void run(){
+			try{
+				// Open connection
+				reopenConnection();
+				
+				// Send data in queue
+				while (true) {
+					// Take data from queue
+					String data = m_token + queue.take();
+					byte[] msg = data.getBytes(UTF8);
+					
+					// Send data, reconnect if needed
+					while (true){
+						try{
+							stream.write( msg);
+							stream.flush();
+						} catch (IOException e) {
+							// Reopen the lost connection
+							reopenConnection();
+							continue;
+						}
+						break;
+					}
+				}
+			} catch (InterruptedException e){
+				// We got interupted, stop
+				dbg( "Asynchronous socket write interrupted");
+			}
+			
+			closeConnection();
 		}
 	}
 	
 	/**
-	 * Create the TCP connection with Logentries.
-	 * @param key userkey of account to accept log events
-	 * @param location hostname/filename
-	 * @throws IOException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException
-	 * @throws KeyManagementException
-	 * @throws KeyStoreException
-	 * @throws UnrecoverableKeyException
+	 * custom Android SSLSocketFactory
+	 * @author Caroline Fenlon <carfenlon@gmail.com>
 	 */
-	public void createSocket(String key, String location) throws IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
+	/*
+	class EasySSLSocketFactory extends SSLSocketFactory {
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+
+		public EasySSLSocketFactory(KeyStore keystore) throws NoSuchAlgorithmException, 
+			KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+			
+			super(keystore);
+
+			TrustManager manager = new X509TrustManager() {
+				public void checkClientTrusted(X509Certificate[] chain,
+						String authType) throws CertificateException {
+				}
+
+				public void checkServerTrusted(X509Certificate[] chain,
+						String authType) throws CertificateException {
+				}
+
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+			};
+			sslContext.init(null, new TrustManager[]{ manager }, null);
+		}
+
+		@Override
+		public Socket createSocket(Socket socket, String host, int port,
+				boolean autoClose) throws IOException, UnknownHostException {
+			return sslContext.getSocketFactory().createSocket(socket, host, port,
+					autoClose);
+		}
+
+		@Override
+		public Socket createSocket() throws IOException {
+			return sslContext.getSocketFactory().createSocket();
+		}
+	}*/
+	
+	public LogentriesAndroid( String token, boolean debug)
 	{
-		KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		trustStore.load(null, null);
-
-		SSLSocketFactory factory = new EasySSLSocketFactory(trustStore);
-		factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		Socket s = new Socket("api.logentries.com", 443);
-		sock = (SSLSocket)factory.createSocket(s, "", 0, false);
-		sock.setTcpNoDelay(true);
-		conn = sock.getOutputStream();
-		String buff = "PUT /" + key + "/hosts/" + location + "/?realtime=1 HTTP/1.1\r\n";
-		conn.write(buff.getBytes(), 0, buff.length());
-		buff = "Host: api.logentries.com\r\n";
-		conn.write(buff.getBytes(), 0, buff.length());
-		buff = "Accept-Encoding: identity\r\n";
-		conn.write(buff.getBytes(), 0, buff.length());
-		buff = "Transfer_Encoding: chunked\r\n\r\n";
-		conn.write(buff.getBytes(), 0, buff.length());
+		this.m_token = token;
+		this.debug = debug;
+		
+		queue = new ArrayBlockingQueue<String>( QUEUE_SIZE);
+		
+		appender = new SocketAppender();
 	}
 	
 	/**
-	 * Close the connection to the logentries server
+	 * Checks that key and location are set.
 	 */
-	public void close() throws SecurityException {
-		try {
-			conn.close();
-			sock.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	public boolean checkCredentials() {
+		if (m_token == null)
+			return false;
 
-	/**
-	 * Flush the socket's OutputStream
-	 */
-	public void flush() {
-		try {
-			conn.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
+		//Quick test to see if LOGENTRIES_TOKEN is a valid UUID
+		UUID u = UUID.fromString(m_token);
+		if (!u.toString().equals(m_token))
+		{
+			dbg(INVALID_TOKEN);
+			return false;
 		}
+
+		return true;
 	}
 
 	/**
@@ -124,7 +287,21 @@ public class Le extends Handler {
 		Date dateTime = new Date(record.getMillis());
 		
 		String MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel()); 
-		upload(MESSAGE);
+		
+		if (!started && checkCredentials()) {
+			dbg( "Starting Logentries asynchronous socket appender");
+			appender.start();
+			started = true;
+		}
+		
+		// Try to offer data to the queue
+		boolean is_full = !queue.offer( MESSAGE);
+		
+		// If it's full, remove the latest item and try again
+		if (is_full){
+			queue.poll();
+			queue.offer( MESSAGE);
+		}
 	}
 	
 	/**
@@ -135,75 +312,29 @@ public class Le extends Handler {
 	 */
 	public String format(Date date, String logData, Level level) {
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE d MMM HH:mm:ss Z yyyy");
-		String log = sdf.format(date) + ", severity=" + level.toString() + ", " + logData + "\r\n";
+		String log = sdf.format(date) + ", severity=" + level.toString() + ", " + logData + "\n";
 		return log;
 	}
 	
-	/**
-	 * Writes the formatted log event to the OutputStream of the Socket
-	 * @param logData formatted event
-	 */
-	public void upload(String logData) {
-		try {
-			conn.write(logData.getBytes(), 0, logData.length());
-		} catch (IOException e) {
-			try{
-				this.createSocket(this.m_key, this.m_location);
-				conn.write(logData.getBytes(), 0, logData.length());
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (KeyManagementException e1) {
-				e1.printStackTrace();
-			} catch (NoSuchAlgorithmException e1) {
-				e1.printStackTrace();
-			} catch (CertificateException e1) {
-				e1.printStackTrace();
-			} catch (KeyStoreException e1) {
-				e1.printStackTrace();
-			} catch (UnrecoverableKeyException e1) {
-				e1.printStackTrace();
-			}
+	public void dbg(String debugMessage)
+	{
+		if (debug)
+		{
+			Log.e(TAG, debugMessage);
 		}
 	}
-}
 
-/**
- * custom Android SSLSocketFactory
- * @author Caroline Fenlon <carfenlon@gmail.com>
- */
-class EasySSLSocketFactory extends SSLSocketFactory {
-	SSLContext sslContext = SSLContext.getInstance("TLS");
-
-	public EasySSLSocketFactory(KeyStore keystore) throws NoSuchAlgorithmException, 
-		KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-		
-		super(keystore);
-
-		TrustManager manager = new X509TrustManager() {
-			public void checkClientTrusted(X509Certificate[] chain,
-					String authType) throws CertificateException {
-			}
-
-			public void checkServerTrusted(X509Certificate[] chain,
-					String authType) throws CertificateException {
-			}
-
-			public X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-		};
-		sslContext.init(null, new TrustManager[]{ manager }, null);
+	@Override
+	/**
+	 * Interrupts the background logging thread
+	 */
+	public void close() {
+		// Interrupt the background thread
+		appender.interrupt();
 	}
 
 	@Override
-	public Socket createSocket(Socket socket, String host, int port,
-			boolean autoClose) throws IOException, UnknownHostException {
-		return sslContext.getSocketFactory().createSocket(socket, host, port,
-				autoClose);
-	}
-
-	@Override
-	public Socket createSocket() throws IOException {
-		return sslContext.getSocketFactory().createSocket();
+	public void flush() {
+		// Don't need to do anything here
 	}
 }
