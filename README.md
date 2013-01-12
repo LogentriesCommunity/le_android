@@ -9,12 +9,13 @@ Setup
 -----
 
 Set up an account with Logentries at <https://logentries.com/>, and register a
-host by selecting Hosts and then New (in the top right).  The host name you
-enter will be required as a parameter when using the AndroidLogger.
+host by selecting Hosts and then New (in the top right).  The host name is for your own benefit.
 	
-Retrieve the userkey corresponding to your account. You will find your account key in the upper right of the 'Account' page when logged in.
+Then create a logfile, by clicking New Log (in the top right) and give it a name for your own benefit. Be sure to choose Token TCP as the source type.
 
-Next, download the android source code from the logentries github account and add the le package to your Android project.
+The token UUID used in green will be used in the next step.
+
+Next, download the android source code from the logentries github account and add the com.logentries.android package to your Android project.
 	
 Add the android.permission.INTERNET <uses-permission> to the project manifest
 file.
@@ -22,21 +23,16 @@ file.
 Use
 ---
 
-In the desired Activity class, ``import le.android.AndroidLogger``
+In the desired Activity class, ``import com.logentries.android.AndroidLogger``
 
 To create an instance of the Logger object in an Activity class:
 
-    AndroidLogger logger = AndroidLogger.getLogger(Context context, String userkey, String hostname, String logname);
+    AndroidLogger logger = AndroidLogger.getLogger(Context context, String token);
 Where
 
  - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``. 
  
- - userkey: Obtained above via the Logentries UI, after clicking Account, it's in grey on the top right.
- 
- - hostname: the name selected when creating the host
- - logname: the name you wish to call the log file to store events - note: a
-   new log file will be created in your account the first time the library
-   runs.
+ - token: is the Token UUID we copied earlier which represents the logfile on Logentries
 
 Log events are created using the following methods of the AndroidLogger class, which differ only in terms of the severity level they report:
  
@@ -58,7 +54,7 @@ Use ``logger.setImmediateUpload(boolean)`` to control the buffering of logs
 The logs will now be available in your Logentries account under hostname > logname.
 
 	
-Timedlogger
+Timedlogger - TODO
 -----------
 
 To upload log events at a particular interval, use ``TimedLogger`` (a subclass
@@ -75,7 +71,7 @@ eg. ``logger.warn(String logContents)``.
 events.
 	
 
-Modification
+Modification - TODO
 ------------
 
 To extend or alter the function of the library, subclass ``le.android.AndroidLogger``.
