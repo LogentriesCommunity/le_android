@@ -15,7 +15,7 @@ Then create a logfile, by clicking New Log (in the top right) and give it a name
 
 The token UUID used in green will be used in the next step.
 
-Next, download the library jar file at <https://github.com/logentries/le_android/raw/master/lib/LogentriesAndroid-2.0.jar> in the logentries github account and add the com.logentries.android package to your Android project.
+Next, download the library jar file [here](https://github.com/logentries/le_android/raw/master/lib/LogentriesAndroid-2.0.jar) in the logentries github account and add the com.logentries.android package to your Android project.
 	
 Add the android.permission.INTERNET <uses-permission> to the project manifest file.
 
