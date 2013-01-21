@@ -45,9 +45,9 @@ public class AndroidLogger{
 	 */
 	protected AndroidLogger(Context context, String token) {
 		this.context = context;
-		//logger = Logger.getLogger("root");
+		logger = Logger.getLogger("root");
 		le = new LogentriesAndroid(token, true);
-		//logger.addHandler(le);
+		logger.addHandler(le);
 		//logList = new ArrayList<String>();
 		//getSavedLogs();
 	}
