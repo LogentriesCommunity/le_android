@@ -40,7 +40,10 @@ Log events are created using the following methods of the AndroidLogger class, w
 Eg: ``logger.error("Log Event Contents");`` creates the log ``Sat Jul 30 16:04:36 GMT+00:00 2011, severity=ERROR, Log Event Contents``. 
 
 Each method corresponds to those used in android.util.Log and java.util.logging.Logger.
-	
+
+
+TODO
+----
 Use ``logger.setImmediateUpload(boolean)`` to control the buffering of logs
  
  - ``false``: logs are saved offline until ``logger.uploadAllLogs()`` is called
