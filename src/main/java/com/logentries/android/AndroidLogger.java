@@ -30,14 +30,14 @@ import android.content.Context;
  */
 public class AndroidLogger{
 	private static AndroidLogger loggerInstance;
-	
+
 	private LogentriesAndroid le = null;
 	private String logFileAddress = "logentries_saved_logs.log";
 	private Logger logger = null;
 	private boolean immediateUpload = true;
 	private Context context = null;
 	protected List<String> logList = null;
-	
+
 	/**
 	 * When subclassing: just call super(context, token) in constructor
 	 * @param context <i>getApplicationContext()</i> in an Activity
@@ -51,7 +51,7 @@ public class AndroidLogger{
 		//logList = new ArrayList<String>();
 		//getSavedLogs();
 	}
-	
+
 	/**
 	 * Singleton - only one Logger object allowed
 	 * @param context <i>getApplicationContext()</i> in Activity
@@ -64,21 +64,21 @@ public class AndroidLogger{
 		}
 		return loggerInstance;
 	}
-	
+
 	/**
 	 * Cloning fails - singleton class
 	 */
 	public Logger clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-	
+
 	/**
 	 * @param upload true if events are to be uploaded to Logentries immediately
 	 */
 	public void setImmediateUpload(boolean upload) {
 		immediateUpload = upload;
 	}
-	
+
 	/**
 	 * @return true if events are to be uploaded immediately, false otherwise
 	 * default value: true
@@ -86,21 +86,21 @@ public class AndroidLogger{
 	public boolean getImmediateUpload() {
 		return immediateUpload;
 	}
-	
+
 	/**
 	 * disconnect from theLogentries server
 	 */
 	public void closeConnection() {
 		le.close();
 	}
-	
+
 	/**
 	 * Flush the OutputStream used in the LE connection
 	 */
 	public void flushConnection() {
 		le.flush();
 	}
-	
+
 	/**
 	 * Add logs from file to the list of logs to upload
 	 * (eg from previous session)
@@ -114,7 +114,7 @@ public class AndroidLogger{
 				logList.add(log + "\r\n");
 				log = dis.readLine();
 			}
-			
+
 			//Then remove saved log file
 			File dir = context.getFilesDir();
 		    File file = new File(dir, logFileAddress);
@@ -125,7 +125,7 @@ public class AndroidLogger{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Saves logs in a private file for access when the app opens again.<br/>
 	 * Use when shutting down the app or ending logging.
@@ -145,7 +145,7 @@ public class AndroidLogger{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Attempts to upload any logs stored offline.
 	 */
@@ -159,7 +159,7 @@ public class AndroidLogger{
 		}
 		//le.upload(toUpload);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>severe</b>
 	 * Java Logger priority: 1000 (highest)
@@ -177,7 +177,7 @@ public class AndroidLogger{
 	public void error(String logMessage) {
 		process(logMessage, AndroidLevel.ERROR);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>warning</b>
 	 * Java Logger priority: 900
@@ -186,7 +186,7 @@ public class AndroidLogger{
 	public void warn(String logMessage) {
 		process(logMessage, AndroidLevel.WARNING);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>debug</b>
 	 * Java Logger priority: 850
@@ -195,7 +195,7 @@ public class AndroidLogger{
 	public void debug(String logMessage) {
 		process(logMessage, AndroidLevel.DEBUG);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>info</b>
 	 * Java Logger priority: 800
@@ -204,7 +204,7 @@ public class AndroidLogger{
 	public void info(String logMessage) {
 		process(logMessage, AndroidLevel.INFO);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>config</b>
 	 * Java Logger priority: 700
@@ -222,7 +222,7 @@ public class AndroidLogger{
 	public void fine(String logMessage) {
 		process(logMessage, AndroidLevel.FINE);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>finer</b>
 	 * Java Logger priority: 400
@@ -231,7 +231,7 @@ public class AndroidLogger{
 	public void finer(String logMessage) {
 		process(logMessage, AndroidLevel.FINER);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>finest</b>
 	 * Java Logger priority: 300
@@ -240,7 +240,7 @@ public class AndroidLogger{
 	public void finest(String logMessage) {
 		process(logMessage, AndroidLevel.FINEST);
 	}
-	
+
 	/**
 	 * Creates and uploads/stores a log event with severity <b>verbose</b>
 	 * Java Logger priority: 0
@@ -249,9 +249,9 @@ public class AndroidLogger{
 	public void verbose(String logMessage) {
 		process(logMessage, AndroidLevel.VERBOSE);
 	}
-	
+
 	/**
-	 * Composes a log event with a timestamp and severity and uploads or stores it. 
+	 * Composes a log event with a timestamp and severity and uploads or stores it.
 	 * @param log The contents of the log (not including timestamp and severity) to be processed
 	 * @param level The severity level to be incorporated into the log event
 	 */
@@ -267,8 +267,8 @@ public class AndroidLogger{
 	}
 }
 /**
- * To create more logging levels, subclass AndroidLevel with a class containing 
- * static Level objects. 
+ * To create more logging levels, subclass AndroidLevel with a class containing
+ * static Level objects.
  * <br/><i>public static Level myLevel = new ExtendedLevel(levelName, levelPriority);</i>
  * @author Caroline
  * 29/08/11
@@ -277,7 +277,7 @@ class AndroidLevel extends Level {
 	protected AndroidLevel(String name, int level) {
 		super(name, level);
 	}
-	
+
 	public static Level ERROR = new AndroidLevel("ERROR", 950);
 	public static Level DEBUG = new AndroidLevel("DEBUG", 850);
 	public static Level VERBOSE = new AndroidLevel("VERBOSE", 0);
