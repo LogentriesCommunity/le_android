@@ -257,7 +257,7 @@ public class AndroidLogger{
 	 */
 	protected void process(String logMessage, Level level) {
 		if(this.immediateUpload) {
-			le.publish(new LogRecord(level, logMessage.replace('\n', '\u2028')));
+			le.publish(new LogRecord(level, logMessage));
 		} else {
 			//add to list of offline logs
 			Date currentTime = new Date();

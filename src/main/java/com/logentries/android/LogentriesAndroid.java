@@ -36,7 +36,7 @@ import javax.net.ssl.SSLSocket;
  * modified by Mark - 10/12/12
  * -  changed to Token-based logging
  * -  Asynchronous logging
- * 
+ *
  * VERSION 2.0
  */
 public class LogentriesAndroid extends Handler {
@@ -71,19 +71,19 @@ public class LogentriesAndroid extends Handler {
 	boolean debug;
 	/** Indicator if the socket appender has been started. */
 	boolean started;
-	
+
 	/** Asynchronous socket appender */
 	SocketAppender appender;
 	/** Message queue. */
 	ArrayBlockingQueue<String> queue;
-	
+
 	/*
 	 * Internal classes
 	 */
-	
+
 	/**
 	 * Asynchronous over the socket appender
-	 * 
+	 *
 	 * @author Mark Lacomber
 	 *
 	 */
@@ -98,7 +98,7 @@ public class LogentriesAndroid extends Handler {
 		OutputStream stream;
 		/** Random number generator for delays between reconnection attempts. */
 		final Random random = new Random();
-		
+
 		/**
 		 * Initializes the socket appender
 		 */
@@ -107,17 +107,17 @@ public class LogentriesAndroid extends Handler {
 			// Don't block shut down
 			setDaemon(true);
 		}
-		
+
 		/**
 		 * Opens connection to Logentries
-		 * 
+		 *
 		 * @throws IOException
-		 * @throws CertificateException 
+		 * @throws CertificateException
 		 */
 		void openConnection() throws IOException {
 			try{
 				dbg( "Reopening connection to Logentries API server");
-				
+
 				KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 				trustStore.load(null, null);
 
@@ -127,27 +127,27 @@ public class LogentriesAndroid extends Handler {
 				socket = (SSLSocket)socketFactory.createSocket(s, "", 0, true);
 				socket.setTcpNoDelay(true);
 				stream = socket.getOutputStream();
-		        
+
 				dbg( "Connection established");
 			} catch (Exception e){ }
 		}
-		
+
 		/**
 		 * Tries to open connection to Logentries until it succeeds
-		 * 
+		 *
 		 * @throws InterruptedException
 		 */
 		void reopenConnection() throws InterruptedException {
 			// Close the previous connection
 			closeConnection();
-			
+
 			//Try to open the connection until we get through
 			int root_delay = MIN_DELAY;
 			while(true)
 			{
 				try{
 					openConnection();
-					
+
 					// Success, leave
 					return;
 				} catch (IOException e) {
@@ -155,7 +155,7 @@ public class LogentriesAndroid extends Handler {
 					dbg( "Unable to connect to Logentries");
 					e.printStackTrace();
 				}
-				
+
 				// Wait between connection attempts
 				root_delay *= 2;
 				if (root_delay > MAX_DELAY)
@@ -165,7 +165,7 @@ public class LogentriesAndroid extends Handler {
 				Thread.sleep( wait_for);
 			}
 		}
-		
+
 		/**
 		 * Closes the connection. Ignore errors
 		 */
@@ -187,7 +187,7 @@ public class LogentriesAndroid extends Handler {
 			}
 			socket = null;
 		}
-		
+
 		/**
 		 * Initializes the connection and starts to log
 		 */
@@ -196,13 +196,13 @@ public class LogentriesAndroid extends Handler {
 			try{
 				// Open connection
 				reopenConnection();
-				
+
 				// Send data in queue
 				while (true) {
 					// Take data from queue
-					String data = m_token + queue.take();
+					String data = m_token + queue.take().replace('\n', '\u2028');
 					byte[] msg = data.getBytes(UTF8);
-					
+
 					// Send data, reconnect if needed
 					while (true){
 						try{
@@ -220,20 +220,20 @@ public class LogentriesAndroid extends Handler {
 				// We got interupted, stop
 				dbg( "Asynchronous socket writer interrupted");
 			}
-			
+
 			closeConnection();
 		}
 	}
-	
+
 	/**
 	 * custom Android SSLSocketFactory
 	 */
 	class EasySSLSocketFactory extends SSLSocketFactory {
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 
-		public EasySSLSocketFactory(KeyStore keystore) throws NoSuchAlgorithmException, 
+		public EasySSLSocketFactory(KeyStore keystore) throws NoSuchAlgorithmException,
 			KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-			
+
 			super(keystore);
 
 			TrustManager manager = new X509TrustManager() {
@@ -251,7 +251,7 @@ public class LogentriesAndroid extends Handler {
 			};
 			sslContext.init(null, new TrustManager[]{ manager }, null);
 		}
-		
+
 		@Override
 		public Socket createSocket(Socket socket, String host, int port,
 				boolean autoClose) throws IOException, UnknownHostException {
@@ -264,17 +264,17 @@ public class LogentriesAndroid extends Handler {
 			return sslContext.getSocketFactory().createSocket();
 		}
 	}
-	
+
 	public LogentriesAndroid( String token, boolean debug)
 	{
 		this.m_token = token;
 		this.debug = debug;
-		
+
 		queue = new ArrayBlockingQueue<String>( QUEUE_SIZE);
-		
+
 		appender = new SocketAppender();
 	}
-	
+
 	/**
 	 * Checks that key and location are set.
 	 */
@@ -299,25 +299,25 @@ public class LogentriesAndroid extends Handler {
 	 */
 	public void publish(LogRecord record) {
 		Date dateTime = new Date(record.getMillis());
-		
-		String MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel()); 
-		
+
+		String MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel());
+
 		if (!started && checkCredentials()) {
 			dbg( "Starting Logentries asynchronous socket appender");
 			appender.start();
 			started = true;
 		}
-		
+
 		// Try to offer data to the queue
 		boolean is_full = !queue.offer( MESSAGE);
-		
+
 		// If it's full, remove the latest item and try again
 		if (is_full){
 			queue.poll();
 			queue.offer( MESSAGE);
 		}
 	}
-	
+
 	/**
 	 * @param date log time
 	 * @param logData log message
@@ -329,7 +329,7 @@ public class LogentriesAndroid extends Handler {
 		String log = sdf.format(date) + ", severity=" + level.toString() + ", " + logData + "\n";
 		return log;
 	}
-	
+
 	public void dbg(String debugMessage)
 	{
 		if (debug)
