@@ -200,7 +200,9 @@ public class LogentriesAndroid extends Handler {
 				// Send data in queue
 				while (true) {
 					// Take data from queue
-					String data = m_token + queue.take().replace('\n', '\u2028');
+					String data = m_token + queue.take();
+					data = data.trim().replace('\n', '\u2028') + '\n';
+
 					byte[] msg = data.getBytes(UTF8);
 
 					// Send data, reconnect if needed
