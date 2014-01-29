@@ -218,7 +218,7 @@ public class LogentriesAndroid extends Handler {
 						break;
 					}
 				}
-			} catch (InterruptedException e){
+			} catch (Exception e){
 				// We got interupted, stop
 				dbg( "Asynchronous socket writer interrupted");
 			}
