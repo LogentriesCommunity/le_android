@@ -1,4 +1,4 @@
-package com.example.library;
+package com.logentries.android;
 /*
  * Logentries Android Logger
  * Copyright 2011 Logentries, JLizard
@@ -296,9 +296,15 @@ class AndroidLevel extends Level {
 	protected AndroidLevel(String name, int level) {
 		super(name, level);
 	}
-
+	public static Level SEVERE = new AndroidLevel("SEVERE", 1000);
 	public static Level ERROR = new AndroidLevel("ERROR", 950);
+	public static Level WARN = new AndroidLevel("WARN", 900);
 	public static Level DEBUG = new AndroidLevel("DEBUG", 850);
+	public static Level INFO = new AndroidLevel("INFO", 800);
+	public static Level CONFIG = new AndroidLevel("CONFIG", 700);
+	public static Level FINE = new AndroidLevel("FINE", 500);
+	public static Level FINER = new AndroidLevel("FINER", 400);
+	public static Level FINEST = new AndroidLevel("FINEST", 300);
 	public static Level VERBOSE = new AndroidLevel("VERBOSE", 0);
 }
 
@@ -315,11 +321,9 @@ class NetworkReceiver extends BroadcastReceiver {
 		ConnectivityManager cm =(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo netInfo = cm.getActiveNetworkInfo();
 		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-			Log.i("NET", "connected" );
 			AndroidLogger.setImmediateUpload(true);
 		}
 		else{
-			Log.i("NET", "not connected" );
 			AndroidLogger.setImmediateUpload(false);
 		}
 	}

@@ -1,4 +1,4 @@
-package com.example.library;
+package com.logentries.android;
 
 
 import java.io.DataInputStream;
@@ -223,6 +223,7 @@ public class LogentriesAndroid extends Handler {
 	class FileReader implements Runnable{
 		public void run(){
 			try{
+				Thread.sleep(50);
 				DataInputStream dis = new DataInputStream(m_context.openFileInput(logFileAddress));
 				String log = " ";
 				while(true) {
@@ -268,6 +269,7 @@ public class LogentriesAndroid extends Handler {
 		OutputStream stream;
 		/** Random number generator for delays between reconnection attempts. */
 		final Random random = new Random();
+		String data=null;
 
 
 		/**
@@ -291,7 +293,9 @@ public class LogentriesAndroid extends Handler {
 				stream = socket.getOutputStream();
 
 				dbg( "Connection established");
-			} catch (Exception e){ }
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 		}
 
 		/**
@@ -314,7 +318,6 @@ public class LogentriesAndroid extends Handler {
 				} catch (IOException e) {
 					// Get information if in debug mode
 					dbg( "Unable to connect to Logentries");
-					e.printStackTrace();
 				}
 
 				// Wait between connection attempts
@@ -355,23 +358,24 @@ public class LogentriesAndroid extends Handler {
 		@Override
 		public void run(){
 			try{
-				startedSocketAppender=true;
 				// Open connection
-				reopenConnection();
+				openConnection();
 
 				// Send data in queue
 				while (true) {
 					// Take data from queue
-					String data = m_token + uploadQueue.take();
-					data = data.trim().replace('\n', '\u2028') + '\n';
-					byte[] msg = data.getBytes("UTF8");
+					
+					data=uploadQueue.take();
+					String dataWithToken = m_token + data;
+					dataWithToken = dataWithToken.trim().replace('\n', '\u2028') + '\n';
+					byte[] msg = dataWithToken.getBytes("UTF8");
 					// Send data, save to file on failure
 					while (true){
 						try{
 							stream.write( msg);
 							stream.flush();
 						} catch (IOException e) {
-							throw new Exception();
+							reopenConnection();
 						}
 						break;
 					}
@@ -379,6 +383,13 @@ public class LogentriesAndroid extends Handler {
 			} catch (Exception e){
 				// We got interrupted
 				dbg( "Asynchronous socket writer interrupted");
+				//get lost item
+				try {
+					saveQueue.offer(data,timeout,milliseconds);
+				} catch (InterruptedException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
 				//copy upload queue to saveQueue to preserve the logs
 				while(uploadQueue.peek()!=null){
 					try {
@@ -496,6 +507,7 @@ public class LogentriesAndroid extends Handler {
 			socketAppendingThread.start();
 		}
 		if(!startedSocketAppender){//if we are not trying to upload then start uploading
+			startedSocketAppender=true;
 			socketAppendingThread.doRunnable(appender);
 		}
 		if(fileReadingThread.getState()==State.NEW){
@@ -507,15 +519,16 @@ public class LogentriesAndroid extends Handler {
 		//to preserve ordering of logs
 		//if there is a file then it must be written to and read from until empty
 		if(file.exists()){//there is a file
-			if(!readingStarted){// a read is not happening
-				fileReadingThread.doRunnable(fileReader);
-				readingStarted=true;
-			}
 			try {//append the latest data to the file
 				saveQueue.offer(MESSAGE, timeout,milliseconds);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			if(!readingStarted){// a read is not happening
+				fileReadingThread.doRunnable(fileReader);
+				readingStarted=true;
+			}
+			
 		}
 		else{
 			boolean successfull_add=false;
