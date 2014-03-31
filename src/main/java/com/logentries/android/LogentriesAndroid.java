@@ -1,11 +1,12 @@
 package com.logentries.android;
 
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.Thread.State;
 import java.net.Socket;
@@ -20,8 +21,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -224,11 +223,11 @@ public class LogentriesAndroid extends Handler {
 		public void run(){
 			try{
 				Thread.sleep(50);
-				DataInputStream dis = new DataInputStream(m_context.openFileInput(logFileAddress));
+				 BufferedReader d= new BufferedReader(new InputStreamReader(m_context.openFileInput(logFileAddress)));
 				String log = " ";
 				while(true) {
 					fileLock.lock();
-					log = dis.readLine();
+					log = d.readLine();
 					if(log==null){
 						//reached end of file, exit loop, delete file, release lock
 						break;
@@ -387,7 +386,6 @@ public class LogentriesAndroid extends Handler {
 				try {
 					saveQueue.offer(data,timeout,milliseconds);
 				} catch (InterruptedException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
 				//copy upload queue to saveQueue to preserve the logs

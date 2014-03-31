@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 /**
  * Logentries Android Logger<br/>
@@ -225,6 +224,10 @@ public class AndroidLogger implements UncaughtExceptionHandler{
 	 * @param level The severity level to be incorporated into the log event
 	 */
 	protected void process(String logMessage, Level level) {
+		if(logMessage==null){
+			logMessage="null";
+		}
+		
 		if(getImmediateUpload()) {
 			le.publish(new LogRecord(level, logMessage));
 		} else {
@@ -291,6 +294,7 @@ public class AndroidLogger implements UncaughtExceptionHandler{
  * @author Caroline
  * 29/08/11
  */
+@SuppressWarnings("serial")
 class AndroidLevel extends Level {
 
 	protected AndroidLevel(String name, int level) {
