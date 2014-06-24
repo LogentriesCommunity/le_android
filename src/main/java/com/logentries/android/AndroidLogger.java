@@ -6,6 +6,9 @@ package com.logentries.android;
  * Caroline Fenlon <carfenlon@gmail.com>
  */
 
+import java.io.*;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +23,10 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import android.content.Context;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
  * Logentries Android Logger<br/>
@@ -37,6 +44,7 @@ public class AndroidLogger{
 	private boolean immediateUpload = true;
 	private Context context = null;
 	protected List<String> logList = null;
+	private String ip = null;
 
 	/**
 	 * When subclassing: just call super(context, token) in constructor
@@ -48,8 +56,40 @@ public class AndroidLogger{
 		logger = Logger.getLogger("root");
 		le = new LogentriesAndroid(token, true);
 		logger.addHandler(le);
+		ip = getPublicIP();
 		//logList = new ArrayList<String>();
 		//getSavedLogs();
+	}
+
+	public static String getPublicIP(){
+		String ip = "";
+		try {
+			String url = "http://icanhazip.com/";
+
+			HttpClient client = new DefaultHttpClient();
+			HttpGet request = new HttpGet(url);
+
+			HttpResponse response = client.execute(request);
+			BufferedReader rd = new BufferedReader(
+					new InputStreamReader(response.getEntity().getContent()));
+
+			StringBuffer result = new StringBuffer();
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+			ip = result.toString();
+
+		} catch(IOException ioException){
+			try{
+				ip = Inet4Address.getLocalHost().getHostAddress();
+			}catch(UnknownHostException unknownHostException ){
+
+			}
+
+		}
+
+		return ip;
 	}
 
 	/**
@@ -163,7 +203,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>severe</b>
 	 * Java Logger priority: 1000 (highest)
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void severe(String logMessage) {
 		process(logMessage, AndroidLevel.SEVERE);
@@ -172,7 +212,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>error</b>
 	 * Java Logger priority: 950
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void error(String logMessage) {
 		process(logMessage, AndroidLevel.ERROR);
@@ -181,7 +221,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>warning</b>
 	 * Java Logger priority: 900
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void warn(String logMessage) {
 		process(logMessage, AndroidLevel.WARNING);
@@ -190,7 +230,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>debug</b>
 	 * Java Logger priority: 850
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void debug(String logMessage) {
 		process(logMessage, AndroidLevel.DEBUG);
@@ -199,7 +239,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>info</b>
 	 * Java Logger priority: 800
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void info(String logMessage) {
 		process(logMessage, AndroidLevel.INFO);
@@ -208,7 +248,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>config</b>
 	 * Java Logger priority: 700
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void config(String logMessage) {
 		process(logMessage, AndroidLevel.CONFIG);
@@ -217,7 +257,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>fine</b>
 	 * Java Logger priority: 500
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void fine(String logMessage) {
 		process(logMessage, AndroidLevel.FINE);
@@ -226,7 +266,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>finer</b>
 	 * Java Logger priority: 400
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void finer(String logMessage) {
 		process(logMessage, AndroidLevel.FINER);
@@ -235,7 +275,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>finest</b>
 	 * Java Logger priority: 300
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void finest(String logMessage) {
 		process(logMessage, AndroidLevel.FINEST);
@@ -244,7 +284,7 @@ public class AndroidLogger{
 	/**
 	 * Creates and uploads/stores a log event with severity <b>verbose</b>
 	 * Java Logger priority: 0
-	 * @param logContents the textual contents of the log
+	 * param logContents the textual contents of the log
 	 */
 	public void verbose(String logMessage) {
 		process(logMessage, AndroidLevel.VERBOSE);
@@ -252,10 +292,11 @@ public class AndroidLogger{
 
 	/**
 	 * Composes a log event with a timestamp and severity and uploads or stores it.
-	 * @param log The contents of the log (not including timestamp and severity) to be processed
-	 * @param level The severity level to be incorporated into the log event
+	 * param log The contents of the log (not including timestamp and severity) to be processed
+	 * param level The severity level to be incorporated into the log event
 	 */
 	protected void process(String logMessage, Level level) {
+		logMessage = "ip:" + ip + ", " + logMessage;
 		if(this.immediateUpload) {
 			le.publish(new LogRecord(level, logMessage));
 		} else {
