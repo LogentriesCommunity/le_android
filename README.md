@@ -8,14 +8,10 @@ Runtime requirements: Android OS 1.5+
 Setup
 -----
 
-Set up an account with Logentries at <https://logentries.com/>, and register a
-host by selecting Hosts and then New (in the top right).  The host name is for your own benefit.
+Set up an account with Logentries at <https://logentries.com/>, and create a logfile, by clicking + Add New button and selecting the Manual Configuration Option at the bottom. Select Token TCP as the source type and copy the Token UUID printed in green.
 
-Then create a logfile, by clicking New Log (in the top right) and give it a name for your own benefit. Be sure to choose Token TCP as the source type.
 
-The token UUID used in green will be used in the next step.
-
-Next, download the library jar file [here](https://github.com/logentries/le_android/raw/master/lib/logentries-android-2.1.1.jar) and place it in the /lib folder of your Android project.
+Next, download the library jar file [here](https://github.com/logentries/le_android/raw/master/lib/logentries-android-2.1.2.jar) and place it in the /lib folder of your Android project.
 
 Add the android.permission.INTERNET <uses-permission> to the project manifest file.
 
@@ -26,12 +22,14 @@ In the desired Activity class, ``import com.logentries.android.AndroidLogger``
 
 To create an instance of the Logger object in an Activity class:
 
-    AndroidLogger logger = AndroidLogger.getLogger(Context context, String token);
+    AndroidLogger logger = AndroidLogger.getLogger(Context context, String token, boolean logIp);
 Where
 
  - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
 
  - token: is the Token UUID we copied earlier which represents the logfile on Logentries
+
+ - logIp: Is an option to log the users IP address. The IP logged will be the public if it is available otherwise it is gotten via the Host Address.
 
 Log events are created using the following methods of the AndroidLogger class, which differ only in terms of the severity level they report:
 

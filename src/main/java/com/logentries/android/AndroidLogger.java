@@ -45,18 +45,22 @@ public class AndroidLogger{
 	private Context context = null;
 	protected List<String> logList = null;
 	private String ip = null;
+	private boolean logIp = false;
 
 	/**
 	 * When subclassing: just call super(context, token) in constructor
 	 * @param context <i>getApplicationContext()</i> in an Activity
 	 * @param token uuid corresponding to logfile on Logentries
 	 */
-	protected AndroidLogger(Context context, String token) {
+	protected AndroidLogger(Context context, String token, boolean logIp) {
 		this.context = context;
 		logger = Logger.getLogger("root");
 		le = new LogentriesAndroid(token, true);
 		logger.addHandler(le);
-		ip = getPublicIP();
+		this.logIp = logIp;
+		if(this.logIp){
+			ip = getPublicIP();
+		}
 		//logList = new ArrayList<String>();
 		//getSavedLogs();
 	}
@@ -98,9 +102,9 @@ public class AndroidLogger{
 	 * @param token uuid corresponding to logfile on Logentries
 	 * @return an instance of the Logger object
 	 */
-	public static synchronized AndroidLogger getLogger(Context context, String token) {
+	public static synchronized AndroidLogger getLogger(Context context, String token, boolean logIp) {
 		if(loggerInstance == null) {
-			loggerInstance = new AndroidLogger(context, token);
+			loggerInstance = new AndroidLogger(context, token, logIp);
 		}
 		return loggerInstance;
 	}
@@ -290,13 +294,19 @@ public class AndroidLogger{
 		process(logMessage, AndroidLevel.VERBOSE);
 	}
 
+	public void setLogIp(boolean logIp) {
+		this.logIp = logIp;
+	}
+
 	/**
 	 * Composes a log event with a timestamp and severity and uploads or stores it.
 	 * param log The contents of the log (not including timestamp and severity) to be processed
 	 * param level The severity level to be incorporated into the log event
 	 */
 	protected void process(String logMessage, Level level) {
-		logMessage = "ip:" + ip + ", " + logMessage;
+		if(logIp){
+			logMessage = "ip:" + ip + ", " + logMessage;
+		}
 		if(this.immediateUpload) {
 			le.publish(new LogRecord(level, logMessage));
 		} else {
