@@ -23,6 +23,8 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import android.content.Context;
+import android.util.Log;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -36,6 +38,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * 29/08/11
  */
 public class AndroidLogger{
+	private static final String TAG = "AndroidLogger";
+
 	private static AndroidLogger loggerInstance;
 
 	private LogentriesAndroid le = null;
@@ -61,7 +65,7 @@ public class AndroidLogger{
 		if(this.logIp){
 			ip = getPublicIP();
 		}
-		//logList = new ArrayList<String>();
+		logList = new ArrayList<String>();
 		//getSavedLogs();
 	}
 
@@ -194,6 +198,7 @@ public class AndroidLogger{
 	 * Attempts to upload any logs stored offline.
 	 */
 	public void uploadAllLogs() {
+		Log.w(TAG, "uploadAllLogs");
 		String toUpload = "";
 		Iterator<String> it = logList.iterator();
 		while(it.hasNext()) {
@@ -201,7 +206,7 @@ public class AndroidLogger{
 			toUpload += event;
 			it.remove();
 		}
-		//le.upload(toUpload);
+		le.upload(toUpload);
 	}
 
 	/**

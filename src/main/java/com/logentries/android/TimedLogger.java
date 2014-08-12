@@ -26,7 +26,7 @@ public class TimedLogger extends AndroidLogger {
 	 * @param logname file to store events
 	 */
     protected TimedLogger(Context ctx, String key) { // Dummy placeholder to get it compiling
-        super(ctx, key);
+        super(ctx, key, false);
     }
 //	protected TimedLogger(Context context, String userkey, String hostname, String logname) {
 //		super(context, userkey, hostname, logname);
