@@ -300,6 +300,7 @@ public class LogentriesAndroid extends Handler {
 	 * @param record the LogRecord to upload
 	 */
 	public void publish(LogRecord record) {
+		Log.w(TAG, "publish");
 		Date dateTime = new Date(record.getMillis());
 
 		String MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel());
@@ -352,5 +353,11 @@ public class LogentriesAndroid extends Handler {
 	@Override
 	public void flush() {
 		// Don't need to do anything here
+	}
+
+	public void upload(String toUpload) {
+		Log.w(TAG, "upload");
+		LogRecord record = new LogRecord(Level.INFO, toUpload);
+		publish(record);
 	}
 }
