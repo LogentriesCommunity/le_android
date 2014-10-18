@@ -302,6 +302,13 @@ public class AndroidLogger{
 	public void setLogIp(boolean logIp) {
 		this.logIp = logIp;
 	}
+	
+	/**
+	 * @param listener will be called after successfully send each log.
+	 */
+	public void setListener(LogentriesAndroid.CallBackListener listener) {
+		le.setListner(listener);
+	}
 
 	/**
 	 * Composes a log event with a timestamp and severity and uploads or stores it.
