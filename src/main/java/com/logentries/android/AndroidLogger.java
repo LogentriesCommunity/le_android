@@ -4,6 +4,8 @@ package com.logentries.android;
  * Logentries Android Logger
  * Copyright 2011 Logentries, JLizard
  * Caroline Fenlon <carfenlon@gmail.com>
+ * 
+ * updated 2014-10-21 for DataHub 
  */
 
 import java.io.*;
@@ -50,6 +52,7 @@ public class AndroidLogger{
 	protected List<String> logList = null;
 	private String ip = null;
 	private boolean logIp = false;
+	
 
 	/**
 	 * When subclassing: just call super(context, token) in constructor
@@ -68,6 +71,36 @@ public class AndroidLogger{
 		logList = new ArrayList<String>();
 		//getSavedLogs();
 	}
+	
+//  constructor for DataHub - without customID	
+	protected AndroidLogger(Context context, String datahub_address, int datahub_port) {
+		this.context = context;
+				
+		logger = Logger.getLogger("root");  // this gets the singleton instance of the logger
+						
+		le = new LogentriesAndroid(datahub_address, datahub_port, true);
+				
+		logger.addHandler(le);
+
+
+		logList = new ArrayList<String>();
+		//getSavedLogs();
+	}
+
+//  constructor for DataHub - with customID	
+	protected AndroidLogger(Context context, String datahub_address, int datahub_port, String customID) {
+		this.context = context;
+
+		logger = Logger.getLogger("root");  // this gets the singleton instance of the logger
+						
+		le = new LogentriesAndroid(datahub_address, datahub_port, true, customID);
+				
+		logger.addHandler(le);
+
+		logList = new ArrayList<String>();
+//		getSavedLogs();
+	}
+	
 
 	public static String getPublicIP(){
 		String ip = "";
@@ -113,6 +146,23 @@ public class AndroidLogger{
 		return loggerInstance;
 	}
 
+	public static synchronized AndroidLogger getLogger(Context context, String datahub_address, int datahub_port) {
+		
+		if(loggerInstance == null) {
+			loggerInstance = new AndroidLogger(context, datahub_address, datahub_port);
+		}
+		return loggerInstance;
+	}
+
+public static synchronized AndroidLogger getLogger(Context context, String datahub_address, int datahub_port, String customID) {
+		
+		if(loggerInstance == null) {
+			loggerInstance = new AndroidLogger(context, datahub_address, datahub_port, customID);
+		}
+		return loggerInstance;
+	}
+	
+	
 	/**
 	 * Cloning fails - singleton class
 	 */
@@ -157,10 +207,13 @@ public class AndroidLogger{
 		try{
 			//Load logs from file system into a List
 			DataInputStream dis = new DataInputStream(context.openFileInput(logFileAddress));
-			String log = dis.readLine();
+			BufferedReader d = new BufferedReader(new InputStreamReader(dis));
+			String log = d.readLine();
+//!!!			String log = dis.readLine();  	// readLine() deprecated
 			while(log != null) {
 				logList.add(log + "\r\n");
-				log = dis.readLine();
+				log = d.readLine();
+//!!				log = dis.readLine();   	// readLine() deprecated
 			}
 
 			//Then remove saved log file
