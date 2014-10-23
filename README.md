@@ -52,11 +52,12 @@ and
 
  - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
 
- - datahub_address: is the IP Address of your DataHub machine.
+ - datahub_address: is a String of the IP Address of your DataHub machine.
 
- - datahub_port: is the port of your incoming connection on your DataHub machine.  The default is port 10000, but this can be changed
+ - datahub_port: is an int of the port number of your incoming connection on your DataHub machine.  The default is port 10000, but this can be changed
 to any port by altering the /etc/leproxy/leproxyLocal.config file on your DataHub machine and restarting the leproxy daemon using "sudo service leproxy restart".
 
+- customID - is a String of the customID you may wish to add to your log events.  This is different from the deviceID which is now automatically set and entered into your logs.
 
 
 The logger will now add the android deviceID as a Key Value Pair in your logs.  This requires API 9 and above.
