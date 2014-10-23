@@ -27,19 +27,6 @@ import javax.net.ssl.SSLSocket;
 import android.os.Build;
 
 /**
- * @author Mark Lacomber, marklacomber@gmail.com - 22/08/11
- * modified by Caroline Fenlon - 29/08/11
- * 	- added custom SLLSocketFactory
- * 	- added format, upload methods
- * 	- altered publish method
- * modified by Mark - 10/12/12
- * -  changed to Token-based logging
- * -  Asynchronous logging
- * 
- * modified by Michael Seibert 23/10/2014
- * 	- added Logentries DataHub functionality
- * 	- added default logging of deviceID (REQUIRES API 9 and above)
- *  - added ability to log customID
  *
  * VERSION 2.1
  */

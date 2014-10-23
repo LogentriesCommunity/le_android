@@ -34,14 +34,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * Logentries Android Logger<br/>
  * Controls the creation and upload of log events to a Logentries account.<br/>
  * For interval-controlled uploading, see <b>le.android.TimedLogger</b>.
- * @author Caroline Fenlon
- * 29/08/11
-
- * modified by Michael Seibert 23/10/2014
- * 	- added Logentries DataHub functionality
- * 	- added default logging of deviceID (REQUIRES API 9 and above)
- *  - added ability to log customID
  */
+
 public class AndroidLogger{
 	private static final String TAG = "AndroidLogger";
 
