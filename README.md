@@ -48,6 +48,7 @@ There are two additional constructors added, one with a customID and one without
 
 	  AndroidLogger logger = AndroidLogger.getLogger(Context context, String datahub_address, int datahub_port);
 and
+
  	 AndroidLogger logger = AndroidLogger.getLogger(Context context, String datahub_address, int datahub_port, String customID);
 
  - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
