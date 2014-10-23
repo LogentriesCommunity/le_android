@@ -209,11 +209,11 @@ public static synchronized AndroidLogger getLogger(Context context, String datah
 			DataInputStream dis = new DataInputStream(context.openFileInput(logFileAddress));
 			BufferedReader d = new BufferedReader(new InputStreamReader(dis));
 			String log = d.readLine();
-//!!!			String log = dis.readLine();  	// readLine() deprecated
+
 			while(log != null) {
 				logList.add(log + "\r\n");
 				log = d.readLine();
-//!!				log = dis.readLine();   	// readLine() deprecated
+
 			}
 
 			//Then remove saved log file

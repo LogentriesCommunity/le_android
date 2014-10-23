@@ -26,8 +26,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.SSLSocket;
-
-//import android.annotation.SuppressLint;
 import android.os.Build;
 
 /**
