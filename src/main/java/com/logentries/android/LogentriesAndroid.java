@@ -18,9 +18,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
-
 import android.util.Log;
-
 import javax.net.ssl.SSLContext;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -38,7 +36,7 @@ import android.os.Build;
  * -  changed to Token-based logging
  * -  Asynchronous logging
  * 
- * modified by Michael Seibert 21/10/2014
+ * modified by Michael Seibert 23/10/2014
  * 	- added Logentries DataHub functionality
  * 	- added default logging of deviceID (REQUIRES API 9 and above)
  *  - added ability to log customID

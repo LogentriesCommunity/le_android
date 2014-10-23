@@ -23,10 +23,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
 import android.content.Context;
 import android.util.Log;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -38,6 +36,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * For interval-controlled uploading, see <b>le.android.TimedLogger</b>.
  * @author Caroline Fenlon
  * 29/08/11
+
+ * modified by Michael Seibert 23/10/2014
+ * 	- added Logentries DataHub functionality
+ * 	- added default logging of deviceID (REQUIRES API 9 and above)
+ *  - added ability to log customID
  */
 public class AndroidLogger{
 	private static final String TAG = "AndroidLogger";
