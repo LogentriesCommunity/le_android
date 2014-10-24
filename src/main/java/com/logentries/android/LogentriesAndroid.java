@@ -18,26 +18,17 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
-
 import android.util.Log;
-
 import javax.net.ssl.SSLContext;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.SSLSocket;
+import android.os.Build;
 
 /**
- * @author Mark Lacomber, marklacomber@gmail.com - 22/08/11
- * modified by Caroline Fenlon - 29/08/11
- * 	- added custom SLLSocketFactory
- * 	- added format, upload methods
- * 	- altered publish method
- * modified by Mark - 10/12/12
- * -  changed to Token-based logging
- * -  Asynchronous logging
  *
- * VERSION 2.0
+ * VERSION 2.1
  */
 public class LogentriesAndroid extends Handler {
 
@@ -71,6 +62,15 @@ public class LogentriesAndroid extends Handler {
 	boolean debug;
 	/** Indicator if the socket appender has been started. */
 	boolean started;
+	
+	/** DataHub IP Address */
+	String m_datahub_address;
+	/** DataHub Port - default 10000 */
+	int m_datahub_port;
+	/** DataHub Enabled */
+	boolean datahub_enabled = false;
+	String m_customID="";
+	
 
 	/** Asynchronous socket appender */
 	SocketAppender appender;
@@ -108,6 +108,7 @@ public class LogentriesAndroid extends Handler {
 			setDaemon(true);
 		}
 
+		 
 		/**
 		 * Opens connection to Logentries
 		 *
@@ -123,11 +124,21 @@ public class LogentriesAndroid extends Handler {
 
 				socketFactory = new EasySSLSocketFactory(trustStore);
 				socketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-				s = new Socket(LE_API, LE_PORT);
-				socket = (SSLSocket)socketFactory.createSocket(s, "", 0, true);
-				socket.setTcpNoDelay(true);
-				stream = socket.getOutputStream();
-
+				
+				if (datahub_enabled)
+				{
+					s = new Socket(m_datahub_address, m_datahub_port);
+					s.setTcpNoDelay(true);
+					stream = s.getOutputStream();
+				}
+				else
+				{
+					s = new Socket(LE_API, LE_PORT);
+					socket = (SSLSocket)socketFactory.createSocket(s, "", 0, true);
+					socket.setTcpNoDelay(true);
+					stream = socket.getOutputStream();
+				}
+				
 				dbg( "Connection established");
 			} catch (Exception e){ }
 		}
@@ -191,7 +202,7 @@ public class LogentriesAndroid extends Handler {
 		/**
 		 * Initializes the connection and starts to log
 		 */
-		@Override
+	 @Override
 		public void run(){
 			try{
 				// Open connection
@@ -271,12 +282,57 @@ public class LogentriesAndroid extends Handler {
 	{
 		this.m_token = token;
 		this.debug = debug;
-
+		
 		queue = new ArrayBlockingQueue<String>( QUEUE_SIZE);
 
 		appender = new SocketAppender();
 	}
+	
+	
+	public LogentriesAndroid(String datahub_address, int datahub_port, boolean debug)
+	{
+		if (!datahub_address.equals("") || datahub_address!=null)
+		{
+			this.debug = debug;
+			this.datahub_enabled=true;
+			this.m_token="";
 
+			// set DataHub IP Address here
+			m_datahub_address = datahub_address;
+						
+			// set DataHub port here 		
+			m_datahub_port = datahub_port;	
+		}
+				
+		queue = new ArrayBlockingQueue<String>( QUEUE_SIZE);
+
+		appender = new SocketAppender();
+	}
+	
+	public LogentriesAndroid(String datahub_address, int datahub_port, boolean debug, String customID)
+	{
+		if (!datahub_address.equals("") || datahub_address!=null)
+		{	
+			this.debug = debug;
+			this.datahub_enabled=true;
+			this.m_token="";
+			this.m_customID = customID;
+			
+			// set DataHub IP Address here
+			m_datahub_address = datahub_address;
+			
+			// set DataHub port here 		
+			m_datahub_port = datahub_port;
+		}
+				
+		queue = new ArrayBlockingQueue<String>( QUEUE_SIZE);
+
+		appender = new SocketAppender();
+	}
+	
+
+	
+	
 	/**
 	 * Checks that key and location are set.
 	 */
@@ -299,18 +355,31 @@ public class LogentriesAndroid extends Handler {
 	 * format and upload a LogRecord
 	 * @param record the LogRecord to upload
 	 */
-	public void publish(LogRecord record) {
+		public void publish(LogRecord record) {
 		Log.w(TAG, "publish");
 		Date dateTime = new Date(record.getMillis());
-
 		String MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel());
-
-		if (!started && checkCredentials()) {
-			dbg( "Starting Logentries asynchronous socket appender");
-			appender.start();
-			started = true;
+		
+		// Append message with deviceID (Requires API 9 or above
+		MESSAGE = "deviceID="+Build.SERIAL +" " + MESSAGE;
+		
+		// Append message with customID
+		if (!m_customID.equals("")){
+			MESSAGE = "customID="+m_customID +" " + MESSAGE;
 		}
-
+	
+		if (!datahub_enabled){
+									
+			if (!started && checkCredentials()) {
+				dbg( "Starting Logentries asynchronous socket appender");
+				appender.start();
+				started = true;
+				}
+			}
+		else if (!started){
+			appender.start();
+			started=true;
+		}
 		// Try to offer data to the queue
 		boolean is_full = !queue.offer( MESSAGE);
 
