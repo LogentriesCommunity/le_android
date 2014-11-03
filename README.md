@@ -40,6 +40,19 @@ Eg: ``logger.error("Log Event Contents");`` creates the log ``Sat Jul 30 16:04:3
 Each method corresponds to those used in android.util.Log and java.util.logging.Logger.
 
 
+Alternative Constructor without the need for loggging the IP Address:
+This constructor works exactly as the constructor listed above but does not require a boolean for an IP Address
+
+To create an instance of the Logger object in an Activity class:
+
+    AndroidLogger logger = AndroidLogger.getLogger(Context context, String token);
+Where
+
+ - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
+
+ - token: is the Token UUID we copied earlier which represents the logfile on Logentries
+
+
 DATAHUB INTEGRATION
 --------------------
 
