@@ -69,6 +69,18 @@ public class AndroidLogger{
 		//getSavedLogs();
 	}
 	
+// Constructor for without IP address	
+	protected AndroidLogger(Context context, String token) {
+		this.context = context;
+		logger = Logger.getLogger("root");
+		le = new LogentriesAndroid(token, true);
+		logger.addHandler(le);
+		
+		logList = new ArrayList<String>();
+		//getSavedLogs();
+	}
+
+
 //  constructor for DataHub - without customID	
 	protected AndroidLogger(Context context, String datahub_address, int datahub_port) {
 		this.context = context;
@@ -142,6 +154,15 @@ public class AndroidLogger{
 		}
 		return loggerInstance;
 	}
+
+
+	public static synchronized AndroidLogger getLogger(Context context, String token) {
+		if(loggerInstance == null) {
+			loggerInstance = new AndroidLogger(context, token);
+		}
+		return loggerInstance;
+	}
+
 
 	public static synchronized AndroidLogger getLogger(Context context, String datahub_address, int datahub_port) {
 		
