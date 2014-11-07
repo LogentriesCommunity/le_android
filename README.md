@@ -21,6 +21,28 @@ Use
 In the desired Activity class, ``import com.logentries.android.AndroidLogger``
 
 To create an instance of the Logger object in an Activity class:
+	AndroidLogger logger = AndroidLogger.getLogger(Context context, String token);
+Where
+
+ - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
+
+ - token: is the Token UUID we copied earlier which represents the logfile on Logentries
+
+
+
+Log events are created using the following methods of the AndroidLogger class, which differ only in terms of the severity level they report:
+
+ - severe, debug, info, config, fine, finer, finest, verbose
+
+Eg: ``logger.error("Log Event Contents");`` creates the log ``Sat Jul 30 16:04:36 GMT+00:00 2011, severity=ERROR, Log Event Contents``.
+
+Each method corresponds to those used in android.util.Log and java.util.logging.Logger.
+
+## Logging Device IP
+
+Alternative Constructor which allows a User to log the devices IP:
+
+To create an instance of the Logger object in an Activity class:
 
     AndroidLogger logger = AndroidLogger.getLogger(Context context, String token, boolean logIp);
 Where
@@ -31,30 +53,9 @@ Where
 
  - logIp: Is an option to log the users IP address. The IP logged will be the public if it is available otherwise it is gotten via the Host Address.
 
-Log events are created using the following methods of the AndroidLogger class, which differ only in terms of the severity level they report:
 
- - severe, debug, info, config, fine, finer, finest, verbose
+## DataHub Support
 
-Eg: ``logger.error("Log Event Contents");`` creates the log ``Sat Jul 30 16:04:36 GMT+00:00 2011, severity=ERROR, Log Event Contents``.
-
-Each method corresponds to those used in android.util.Log and java.util.logging.Logger.
-
-
-Alternative Constructor without the need for loggging the IP Address:
-This constructor works exactly as the constructor listed above but does not require a boolean for an IP Address
-
-To create an instance of the Logger object in an Activity class:
-
-    AndroidLogger logger = AndroidLogger.getLogger(Context context, String token);
-Where
-
- - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
-
- - token: is the Token UUID we copied earlier which represents the logfile on Logentries
-
-
-DATAHUB INTEGRATION
---------------------
 
 Additional constructors for AndroidLogger have been created for use with Logentries DataHub.
 There are two additional constructors added, one with a customID and one without customID.  They are respectively:
@@ -77,53 +78,3 @@ to any port by altering the /etc/leproxy/leproxyLocal.config file on your DataHu
 The logger will now add the android deviceID as a Key Value Pair in your logs.  This requires API 9 and above.
 
 NOTE: You cannot use both Token-based and DataHub-based AndroidLogger constructors in your application.  You can only use one or the other.
-
-
-TODO
-----
-Use ``logger.setImmediateUpload(boolean)`` to control the buffering of logs
-
- - ``false``: logs are saved offline until ``logger.uploadAllLogs()`` is called
-   Logs must be saved to a file when the application is closed: logger.saveLogs()
-
- - ``true``: logs are uploaded immediately
-    The default value is ``true``.
-    ``logger.getImmediateUpload()`` returns the current value.
-
-The logs will now be available in your Logentries account under hostname > logname.
-
-
-Timedlogger - TODO
------------
-
-To upload log events at a particular interval, use ``TimedLogger`` (a subclass
-of ``AndroidLogger``).
-
-    TimedLogger logger = TimedLogger.getLogger(context, userkey, hostname, logname)
-    logger.start(float timeDelay)
-  - timeDelay: time in seconds between uploads
-
-Create logs in the same way as with ``Logger`` -
-eg. ``logger.warn(String logContents)``.
-
-``logger.uploadAllLogs()`` may still be used to force the upload of any saved
-events.
-
-
-Modification - TODO
-------------
-
-To extend or alter the function of the library, subclass ``le.android.AndroidLogger``.
-
-The protected AndroidLogger constructor requires the same parameters as
-``getLogger()``, and can simply call ``super()`` with them.
-
-To add methods for the creation of different log severities,
-call ``process(String logContents, String severity)`` with the desired severity
-indicator.
-
-``saveLogs()`` and ``getSavedLogs()`` store and access log events in a file on
-the device's internal storage between sessions.  This is private to the app and
-unseen by the user.  Override these methods to save logs to a different
-location when the app is not in use.  While the app is open, logs are saved to
-the protected ``List<String>`` logList.
