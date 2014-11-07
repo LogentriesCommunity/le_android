@@ -11,7 +11,7 @@ Setup
 Set up an account with Logentries at <https://logentries.com/>, and create a logfile, by clicking + Add New button and selecting the Manual Configuration Option at the bottom. Select Token TCP as the source type and copy the Token UUID printed in green.
 
 
-Next, download the library jar file [here](https://github.com/logentries/le_android/raw/master/lib/logentries-android-2.1.3.jar) and place it in the /lib folder of your Android project.
+Next, download the library jar file [here](https://github.com/logentries/le_android/raw/master/lib/logentries-android-2.1.4.jar) and place it in the /lib folder of your Android project.
 
 Add the android.permission.INTERNET <uses-permission> to the project manifest file.
 
