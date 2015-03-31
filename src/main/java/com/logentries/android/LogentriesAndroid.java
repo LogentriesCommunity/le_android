@@ -140,18 +140,18 @@ public class LogentriesAndroid extends Handler {
 				}
 				
 				dbg( "Connection established");
-			} catch (KeyStoreException e){
-                // Ignored
-            } catch (UnrecoverableKeyException e) {
-                // Ignored
-            } catch (CertificateException e) {
-                // Ignored
-            } catch (NoSuchAlgorithmException e) {
-                // Ignored
-            } catch (KeyManagementException e) {
-                // Ignored
-            }
-        }
+			} catch (KeyStoreException e) {
+				// Ignored
+			} catch (UnrecoverableKeyException e) {
+				// Ignored
+			} catch (CertificateException e) {
+				// Ignored
+			} catch (NoSuchAlgorithmException e) {
+				// Ignored
+			} catch (KeyManagementException e) {
+				// Ignored
+			}
+		}
 
 		/**
 		 * Tries to open connection to Logentries until it succeeds
