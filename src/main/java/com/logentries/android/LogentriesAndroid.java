@@ -140,7 +140,17 @@ public class LogentriesAndroid extends Handler {
 				}
 				
 				dbg( "Connection established");
-			} catch (Exception e){ }
+			} catch (KeyStoreException e) {
+				// Ignored
+			} catch (UnrecoverableKeyException e) {
+				// Ignored
+			} catch (CertificateException e) {
+				// Ignored
+			} catch (NoSuchAlgorithmException e) {
+				// Ignored
+			} catch (KeyManagementException e) {
+				// Ignored
+			}
 		}
 
 		/**
@@ -219,11 +229,11 @@ public class LogentriesAndroid extends Handler {
 					// Send data, reconnect if needed
 					while (true){
 						try{
-							stream.write( msg);
-							stream.flush();
+                            stream.write( msg);
+                            stream.flush();
 						} catch (IOException e) {
 							// Reopen the lost connection
-							reopenConnection();
+                            reopenConnection();
 							continue;
 						}
 						break;
