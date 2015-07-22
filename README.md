@@ -1,6 +1,8 @@
 Logging support for Android devices
 ===================================
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/mdp/rotp/blob/master/LICENSE)
+
 Build requirements: Android SDK 2.3+
 Runtime requirements: Android OS 2.3+
 
