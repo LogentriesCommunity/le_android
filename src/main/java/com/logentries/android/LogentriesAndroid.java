@@ -76,6 +76,15 @@ public class LogentriesAndroid extends Handler {
 	SocketAppender appender;
 	/** Message queue. */
 	ArrayBlockingQueue<String> queue;
+	
+
+	/**
+	 * A listener interface, the instance (if any) will be called 
+	 * after each log in queue been sent successfully.
+	 */
+	public interface CallBackListener {
+		public void execute(String data);
+	}
 
 	/*
 	 * Internal classes
@@ -98,6 +107,8 @@ public class LogentriesAndroid extends Handler {
 		OutputStream stream;
 		/** Random number generator for delays between reconnection attempts. */
 		final Random random = new Random();
+		/** Will be called after each log been sent successfully. */
+		CallBackListener listener;
 
 		/**
 		 * Initializes the socket appender
@@ -106,6 +117,14 @@ public class LogentriesAndroid extends Handler {
 			super("Logentries Socket Appender");
 			// Don't block shut down
 			setDaemon(true);
+		}
+		
+		/**
+		 * Set call back listener.
+		 * @param listener.
+		 */
+		void setListener(CallBackListener listener) {
+			this.listener = listener;
 		}
 
 		 
@@ -238,6 +257,9 @@ public class LogentriesAndroid extends Handler {
 						}
 						break;
 					}
+					if (listener != null) {
+						listener.execute(data);
+					}
 				}
 			} catch (Exception e){
 				// We got interupted, stop
@@ -359,6 +381,10 @@ public class LogentriesAndroid extends Handler {
 		}
 
 		return true;
+	}
+	
+	public void setListner(CallBackListener listener) {
+		appender.setListener(listener);
 	}
 
 	/**
