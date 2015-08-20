@@ -80,3 +80,10 @@ to any port by altering the /etc/leproxy/leproxyLocal.config file on your DataHu
 The logger will now add the android deviceID as a Key Value Pair in your logs.  This requires API 9 and above.
 
 NOTE: You cannot use both Token-based and DataHub-based AndroidLogger constructors in your application.  You can only use one or the other.
+
+## Raw Message/Json Support
+By default the timestamp and other configurable elements get logged with the message.
+To send a raw logmessage (for example to log plain json) you can configure that the logger sends the raw message
+
+	  AndroidLogger logger = AndroidLogger.getLogger(Context context, String datahub_address, int datahub_port);
+    logger.setSendRawMessage(true)
