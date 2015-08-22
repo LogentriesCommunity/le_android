@@ -464,7 +464,7 @@ public class LogentriesAndroid extends Handler {
   * @return true if events messages are to send in the raw form to logentries
   * default value: false
   */
- public boolean getSendRawMessage(boolean send) {
+ public boolean getSendRawMessage() {
    return send_raw_message;
  }
 
