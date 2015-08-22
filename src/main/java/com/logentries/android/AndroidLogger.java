@@ -204,6 +204,21 @@ public static synchronized AndroidLogger getLogger(Context context, String datah
 	}
 
 	/**
+	 * @param raw true if messages needs to be send as raw Logentries messages
+	 */
+	public void setSendRawMessage(boolean raw) {
+		le.setSendRawMessage(raw);
+	}
+
+	/**
+	 * @return true if messages are send as raw Logentries messages
+	 */
+	public boolean getSendRawMessage() {
+		return le.getSendRawMessage();
+	}
+
+	
+	/**
 	 * disconnect from theLogentries server
 	 */
 	public void closeConnection() {

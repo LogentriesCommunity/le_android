@@ -71,6 +71,8 @@ public class LogentriesAndroid extends Handler {
 	boolean datahub_enabled = false;
 	String m_customID="";
 	
+  /** Send raw message , useful for sending json data */
+	boolean send_raw_message = false;
 
 	/** Asynchronous socket appender */
 	SocketAppender appender;
@@ -368,15 +370,25 @@ public class LogentriesAndroid extends Handler {
 		public void publish(LogRecord record) {
 		Log.w(TAG, "publish");
 		Date dateTime = new Date(record.getMillis());
-		String MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel());
-		
-		// Append message with deviceID (Requires API 9 or above
-		MESSAGE = "deviceID="+Build.SERIAL +" " + MESSAGE;
-		
-		// Append message with customID
-		if (!m_customID.equals("")){
-			MESSAGE = "customID="+m_customID +" " + MESSAGE;
-		}
+
+    String MESSAGE = "";
+
+    if (send_raw_message) {
+      // Send the message as is
+      MESSAGE = record.getMessage();
+    } else {
+      // Add information to the logged message
+
+      MESSAGE = this.format(dateTime, record.getMessage(), record.getLevel());
+
+      // Append message with deviceID (Requires API 9 or above
+      MESSAGE = "deviceID="+Build.SERIAL +" " + MESSAGE;
+
+      // Append message with customID
+      if (!m_customID.equals("")){
+        MESSAGE = "customID="+m_customID +" " + MESSAGE;
+      }
+    }
 	
 		if (!datahub_enabled){
 									
@@ -439,4 +451,21 @@ public class LogentriesAndroid extends Handler {
 		LogRecord record = new LogRecord(Level.INFO, toUpload);
 		publish(record);
 	}
+
+
+   /**
+  * @param  true send raw message to logentries
+  */
+ public void setSendRawMessage(boolean send) {
+   send_raw_message = send;
+ }
+
+ /**
+  * @return true if events messages are to send in the raw form to logentries
+  * default value: false
+  */
+ public boolean getSendRawMessage() {
+   return send_raw_message;
+ }
+
 }
