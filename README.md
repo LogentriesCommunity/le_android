@@ -6,12 +6,29 @@ Logging support for Android devices
 Build requirements: Android SDK 2.3+
 Runtime requirements: Android OS 2.3+
 
+Features:
+
+- Send Logs via HTTP POST
+
+	Option of changing from Token TCP to using HTTP POST sending to the endpoint 'https://js.logentries.com/v1/logs/LOG-TOKEN'
+
+- Send Logs via SSL
+
+	The library can send logs via Token TCP over TLS/SSL over port 443 by default
+
+- Storing logs offline and sending when connected.  
+
+	While sending logs, if the device looses connection, logs are stored locally until a connection is reestablished then sent to Logenntires.
+
+- TraceID
+
+	Each log sent contains the device TraceID which is a unique 35 character ID.
+
 
 Setup
 -----
 
 Set up an account with Logentries at <https://logentries.com/>, and create a logfile, by clicking + Add New button and selecting the Manual Configuration Option at the bottom. Select Token TCP as the source type and copy the Token UUID printed in green.
-
 
 Next, download the library jar file [here](https://github.com/logentries/le_android/raw/master/lib/logentries-android-2.1.4.jar) and place it in the /yourProject/libs folder of your Android project.
 
@@ -23,7 +40,8 @@ Use
 In the desired Activity class, ``import com.logentries.android.AndroidLogger``
 
 To create an instance of the Logger object in an Activity class:
-	AndroidLogger logger = AndroidLogger.getLogger(Context context, String token);
+	AndroidLogger logger = AndroidLogger.getLogger(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
+                          String token, boolean logHostName);
 Where
 
  - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
@@ -39,21 +57,6 @@ Log events are created using the following methods of the AndroidLogger class, w
 Eg: ``logger.error("Log Event Contents");`` creates the log ``Sat Jul 30 16:04:36 GMT+00:00 2011, severity=ERROR, Log Event Contents``.
 
 Each method corresponds to those used in android.util.Log and java.util.logging.Logger.
-
-## Logging Device IP
-
-Alternative Constructor which allows a User to log the devices IP:
-
-To create an instance of the Logger object in an Activity class:
-
-    AndroidLogger logger = AndroidLogger.getLogger(Context context, String token, boolean logIp);
-Where
-
- - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
-
- - token: is the Token UUID we copied earlier which represents the logfile on Logentries
-
- - logIp: Is an option to log the users IP address. The IP logged will be the public if it is available otherwise it is gotten via the Host Address.
 
 
 ## DataHub Support
