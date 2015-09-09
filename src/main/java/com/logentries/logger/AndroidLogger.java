@@ -10,19 +10,19 @@ public class AndroidLogger {
 
     private AsyncLoggingWorker loggingWorker;
 
-    private AndroidLogger(Context context, boolean useHttpPut, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
+    private AndroidLogger(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
                           String token, boolean logHostName) throws IOException {
-        loggingWorker = new AsyncLoggingWorker(context, useSsl, useHttpPut, isUsingDataHub, token, dataHubAddr, dataHubPort, logHostName);
+        loggingWorker = new AsyncLoggingWorker(context, useSsl, useHttpPost, isUsingDataHub, token, dataHubAddr, dataHubPort, logHostName);
     }
 
-    public static synchronized AndroidLogger createInstance(Context context, boolean useHttpPut, boolean useSsl, boolean isUsingDataHub,
+    public static synchronized AndroidLogger createInstance(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub,
                                                          String dataHubAddr, int dataHubPort, String token, boolean logHostName)
             throws IOException {
         if(instance != null) {
             instance.loggingWorker.close();
         }
 
-        instance = new AndroidLogger(context, useHttpPut, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, logHostName);
+        instance = new AndroidLogger(context, useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, logHostName);
         return instance;
     }
 

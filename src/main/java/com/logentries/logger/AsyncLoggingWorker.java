@@ -46,7 +46,7 @@ public class AsyncLoggingWorker {
     /** Logs queue storage */
     private LogStorage localStorage;
 
-    public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPut, boolean useDataHub, String logToken,
+    public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPost, boolean useDataHub, String logToken,
                               String dataHubAddress, int dataHubPort, boolean logHostName) throws IOException {
 
         if(!checkTokenFormat(logToken)) {
@@ -55,13 +55,13 @@ public class AsyncLoggingWorker {
 
         queue = new ArrayBlockingQueue<String>(QUEUE_SIZE);
         localStorage = new LogStorage(context);
-        appender = new SocketAppender(useHttpPut, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName);
+        appender = new SocketAppender(useHttpPost, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName);
         appender.start();
         started = true;
     }
 
-    public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPut, String logToken) throws IOException {
-        this(context, useSsl, useHttpPut, false, logToken, null, 0, true);
+    public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPost, String logToken) throws IOException {
+        this(context, useSsl, useHttpPost, false, logToken, null, 0, true);
     }
 
     public AsyncLoggingWorker(Context context, boolean useSsl, String logToken) throws IOException {
@@ -158,7 +158,7 @@ public class AsyncLoggingWorker {
 
         private LogentriesClient leClient;
 
-        private boolean useHttpPut;
+        private boolean useHttpPost;
         private boolean useSsl;
         private boolean isUsingDataHub;
         private String dataHubAddr;
@@ -166,14 +166,14 @@ public class AsyncLoggingWorker {
         private String token;
         private boolean logHostName = true;
 
-        public SocketAppender(boolean useHttpPut, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
+        public SocketAppender(boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
                        String token, boolean logHostName) {
             super("Logentries Socket appender");
 
             // Don't block shut down
             setDaemon(true);
 
-            this.useHttpPut = useHttpPut;
+            this.useHttpPost = useHttpPost;
             this.useSsl = useSsl;
             this.isUsingDataHub = isUsingDataHub;
             this.dataHubAddr = dataHubAddr;
@@ -184,7 +184,7 @@ public class AsyncLoggingWorker {
 
         private void openConnection() throws IOException, InstantiationException {
             if(leClient == null){
-                leClient = new LogentriesClient(useHttpPut, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token);
+                leClient = new LogentriesClient(useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token);
             }
 
             leClient.connect();
@@ -230,7 +230,7 @@ public class AsyncLoggingWorker {
                 logs = localStorage.getAllLogsFromStorage(false);
                 for(String msg = logs.peek(); msg != null; msg = logs.peek()) {
                     leClient.write(Utils.formatMessage(msg.replace("\n", LINE_SEP_REPLACER),
-                            logHostName, useHttpPut));
+                            logHostName, useHttpPost));
                     logs.poll(); // Remove the message after successful sending.
                 }
 
@@ -308,7 +308,7 @@ public class AsyncLoggingWorker {
 
                             if(message != null) {
                                 this.leClient.write(Utils.formatMessage(message.replace("\n", LINE_SEP_REPLACER),
-                                        logHostName, useHttpPut));
+                                        logHostName, useHttpPost));
                                 message = null;
                             }
 

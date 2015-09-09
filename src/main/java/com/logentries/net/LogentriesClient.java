@@ -60,12 +60,12 @@ public class LogentriesClient
 	// The formatter used to prepend logs with the endpoint token for Token-based input.
 	private StringBuilder streamFormatter = new StringBuilder();
 
-	public LogentriesClient(boolean useHttpPut, boolean useSsl, boolean isUsingDataHub, String server, int port,
+	public LogentriesClient(boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String server, int port,
 							String token)
 			throws InstantiationException, IllegalArgumentException {
 
-		if(useHttpPut && isUsingDataHub) {
-			throw new IllegalArgumentException("'httpPut' parameter cannot be set to true if 'isUsingDataHub' " +
+		if(useHttpPost && isUsingDataHub) {
+			throw new IllegalArgumentException("'httpPost' parameter cannot be set to true if 'isUsingDataHub' " +
 					"is set to true.");
 		}
 
@@ -75,7 +75,7 @@ public class LogentriesClient
 
 		useDataHub = isUsingDataHub;
 		sslChoice = useSsl;
-		httpChoice = useHttpPut;
+		httpChoice = useHttpPost;
 		endpointToken = token;
 
 		if(useDataHub) {
