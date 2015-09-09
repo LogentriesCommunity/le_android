@@ -18,7 +18,7 @@ Features:
 
 - Storing logs offline and sending when connected.  
 
-	While sending logs, if the device looses connection, logs are stored locally until a connection is reestablished then sent to Logenntires.
+	While sending logs, if the device looses connection, logs are stored locally until a connection is reestablished then sent to Logentries.
 
 - TraceID
 
