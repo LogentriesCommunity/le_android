@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        // Supported versions: from 2.3 up to 5.0
+        applicationId "com.COMPANY_NAME.USER_NAME.APP_NAME"
+        minSdkVersion 9
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'PATH_TO_REPO_WHERE_LOGENTRIES_ANDROID_LIBRARY_RESIDES'
+    }
+   
+    // UNCOMMENT IF THE LIBRARY RESIDES ON Maven Central
+    //
+    // mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.logentries:logentries-android:1.0'
+}

@@ -1,0 +1,164 @@
+group 'com.logentries'
+version '1.0'
+
+['java', 'signing', 'maven-publish'].each {
+    apply plugin: it
+}
+
+sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    compile 'com.google.android:android:4.1.1.4'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+task javadocJar (type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task sourceJar (type : Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+ext {
+    pomFilePath = "${project.projectDir}/tmp/pom.xml"
+    pomFile = file(pomFilePath)
+}
+
+configurations {
+    pom
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+    if (pomFile.exists()) {
+        pom pomFile
+    }
+}
+
+task signJars (type: Sign, dependsOn: [jar, javadocJar, sourceJar]) {
+    sign configurations.archives
+}
+
+task signPom(type: Sign) {
+    sign configurations.pom
+}
+
+signing {
+    sign configurations.archives
+    if (project.ext.pomFile.exists()) {
+		sign configurations.pom
+    }
+}
+
+// Extract signatures and add classifier and extension to them.
+def getSignatureFiles = {
+    def allFiles = project.tasks.signJars.signatureFiles.collect { it }
+    def signedSources = allFiles.find { it.name.contains('-sources') }
+    def signedJavadoc = allFiles.find { it.name.contains('-javadoc') }
+    def signedJar = (allFiles - [signedSources, signedJavadoc])[0]
+    return [
+            [archive: signedSources, classifier: 'sources', extension: 'jar.asc'],
+            [archive: signedJavadoc, classifier: 'javadoc', extension: 'jar.asc'],
+            [archive: signedJar,     classifier: null,      extension: 'jar.asc']
+    ]
+}
+
+def getPomSignature = {
+    return project.tasks.signPom.signatureFiles.collect{it}[0]
+}
+
+publishing {
+    publications {
+        gpgJars(MavenPublication) {
+            getSignatureFiles().each {signature ->
+                artifact (signature.archive) {
+                    classifier = signature.classifier
+                    extension  = signature.extension
+                }
+            }
+        }
+
+        if (project.ext.pomFile.exists()) {
+            gpgPom(MavenPublication) {
+                artifact (getPomSignature()) {
+                    classifier = null
+                    extension  = 'pom.asc'
+                }
+            }
+        }
+
+        jar(MavenPublication) {
+            from components.java
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name 'logentries-android'
+                    description 'Logentries Android Logging Library'
+                    url 'http://logentries.com'
+					
+					// UNCOMMENT IF YOU NEED TO PUBLISH VIA SCM.
+                    //scm {
+                    //    url SCM_URL
+                    //    connection SCM_CONNECTION
+                    //    developerConnection SCM_DEV_CONNECTION
+                    //}
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'     // Place the appropriate license name here.
+                            url 'http://www.apache.org/license/LICENSE-2.0.txt' // Place the appropriate license here.
+                            distribution 'repo'                                 // Replace with the actual distribution name.
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'YOUR_ID_OR_NICK_NAME_HERE'
+                            name 'YOUR_REAL_NAME_HERE'
+                            email 'YOUR_EMAIL_ADDRESS_HERE'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+	        // UNCOMMENT THE CODE BELOW IF YOU NEED TO PUBLISH ARTIFACTS TO OSSRH. 
+			//
+            //if (project.ext.pomFile.exists()) {
+            //    url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            //    credentials {
+            //        username = USER_NAME
+            //        password = PASSWORD
+            //    }
+            //}
+
+        maven {
+            url "file:/${project.projectDir}/artifacts" // Replace with the appropriate local or remote path.
+        }
+    }
+}
+
+
+task makeLibrary(type: Copy) {
+    from 'build/libs'
+    into 'output'
+    include('*.jar')
+
+    from 'build'
+    rename 'logentries-(.*)', 'logentries-android.jar'
+}
+
+makeLibrary.dependsOn build
+publish.dependsOn build
