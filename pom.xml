@@ -17,6 +17,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:logentries/le_android.git</connection>
+        <developerConnection>scm:git:git@github.com:logentries/le_android.git</developerConnection>
+        <url>https://github.com/logentries/le_android</url>
+    </scm>
+
     <build>
         <plugins>
             <plugin>
