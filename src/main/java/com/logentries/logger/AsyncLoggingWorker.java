@@ -93,7 +93,7 @@ public class AsyncLoggingWorker {
     }
 
     /**
-     * Stops the socket appender. queueFlushTimeout (if > 0) sets the maximum timeout in milliseconds for
+     * Stops the socket appender. queueFlushTimeout (if greater than 0) sets the maximum timeout in milliseconds for
      * the message queue to be flushed by the socket appender, before it is stopped. If queueFlushTimeout
      * is equal to zero - the method will wait until the queue is empty (which may be dangerous if the
      * queue is constantly populated by another thread mantime.

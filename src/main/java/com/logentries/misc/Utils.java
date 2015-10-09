@@ -128,9 +128,9 @@ public class Utils {
 
         If isUsingHttp == false the output will be like this:
         Host=SOMEHOST Timestamp=12345 DeviceID=DEV_ID MESSAGE
-     * @param message
+     * @param message Message to be sent to Logentries
      * @param logHostName - if set to true - "Host"=HOSTNAME parameter is appended to the message.
-     * @param isUsingHttp
+     * @param isUsingHttp will be using http
      *
      * @return
      */
