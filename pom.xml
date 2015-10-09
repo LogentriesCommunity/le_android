@@ -4,7 +4,7 @@
 
     <groupId>com.logentries</groupId>
     <artifactId>logentries-android</artifactId>
-    <version>2.1.5</version>
+    <version>2.1.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>logentries-android</name>
@@ -20,7 +20,7 @@
         <connection>scm:git:git@github.com:logentries/le_android.git</connection>
         <developerConnection>scm:git:git@github.com:logentries/le_android.git</developerConnection>
         <url>https://github.com/logentries/le_android</url>
-      <tag>logentries-android-2.1.5</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <licenses>
