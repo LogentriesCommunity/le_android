@@ -40,23 +40,25 @@ Use
 In the desired Activity class, ``import com.logentries.android.AndroidLogger``
 
 To create an instance of the Logger object in an Activity class:
-	AndroidLogger logger = AndroidLogger.getLogger(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
+	AndroidLogger logger = AndroidLogger.createInstance(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
                           String token, boolean logHostName);
-Where
 
- - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
-
- - token: is the Token UUID we copied earlier which represents the logfile on Logentries
-
-
-
-Log events are created using the following methods of the AndroidLogger class, which differ only in terms of the severity level they report:
-
- - severe, debug, info, config, fine, finer, finest, verbose
-
-Eg: ``logger.error("Log Event Contents");`` creates the log ``Sat Jul 30 16:04:36 GMT+00:00 2011, severity=ERROR, Log Event Contents``.
-
-Each method corresponds to those used in android.util.Log and java.util.logging.Logger.
+The library provides AndroidLogger object, which provides log() method to send messages to the endpoint. Example of usage is provided below:
+// In module 1.
+private AndroidLogger logger = null;
+...
+logger = AndroidLogger.createInstance(getApplicationContext(), useHttp, useSSL, false, null, 0, token, appendHost);
+...
+logger.log(“Test message 1”);
+...
+// In module 2.
+private AndroidLogger logger2 = null;
+...
+// Logger is set-up during to call to createInstance() in module 1.
+// Also, we can re-create the instance with another token or different values
+// for SSL or useHttp options.
+logger2 = AndroidLogger.getInstance();
+logger2.log(“Test message 2”);
 
 
 ## DataHub Support
