@@ -62,13 +62,11 @@ Each method corresponds to those used in android.util.Log and java.util.logging.
 ## DataHub Support
 
 
-Additional constructors for AndroidLogger have been created for use with Logentries DataHub.
-There are two additional constructors added, one with a customID and one without customID.  They are respectively:
+Our Android library also comes with DataHub support:
+
 
 	  AndroidLogger logger = AndroidLogger.getLogger(Context context, String datahub_address, int datahub_port);
-and
-
- 	 AndroidLogger logger = AndroidLogger.getLogger(Context context, String datahub_address, int datahub_port, String customID);
+	  
 
  - context: for example, if in an Activity class, use ``getApplicationContext()``, or if in an Application class, use ``getBaseContext()``.
 
@@ -76,8 +74,6 @@ and
 
  - datahub_port: is an int of the port number of your incoming connection on your DataHub machine.  The default is port 10000, but this can be changed
 to any port by altering the /etc/leproxy/leproxyLocal.config file on your DataHub machine and restarting the leproxy daemon using "sudo service leproxy restart".
-
-- customID - is a String of the customID you may wish to add to your log events.  This is different from the deviceID which is now automatically set and entered into your logs.
 
 
 The logger will now add the android deviceID as a Key Value Pair in your logs.  This requires API 9 and above.
