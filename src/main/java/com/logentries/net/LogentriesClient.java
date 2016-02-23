@@ -1,14 +1,5 @@
 package com.logentries.net;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.Scheme;
@@ -19,7 +10,16 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 
 public class LogentriesClient
@@ -227,23 +227,8 @@ public class LogentriesClient
 			KeyManagementException {
 
 		SSLContext sslContext = SSLContext.getInstance(algorithm);
-
-		TrustManager fakeX509TrustManager = new X509TrustManager() {
-
-			public void checkClientTrusted(X509Certificate[] chain,
-										   String authType) throws CertificateException {
-			}
-
-			public void checkServerTrusted(X509Certificate[] chain,
-										   String authType) throws CertificateException {
-			}
-
-			public X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-		};
-		TrustManager[] trustMgrChain = { fakeX509TrustManager };
-		sslContext.init(null, trustMgrChain, null);
+		//library relies on defaults for KeyManager, TrustManager and randomness source
+		sslContext.init(null, null, null);
 
 		return sslContext;
 	}
