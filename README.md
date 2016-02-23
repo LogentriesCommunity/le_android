@@ -37,7 +37,7 @@ Add the android.permission.INTERNET <uses-permission> to the project manifest fi
 Use
 ---
 
-In the desired Activity class, ``import com.logentries.android.AndroidLogger``
+In the desired Activity class, ``import com.logentries.logger.AndroidLogger``
 
 To create an instance of the Logger object in an Activity class:
 
