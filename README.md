@@ -78,7 +78,7 @@ When a new instance of the Activity is created, a simple log event message is se
 				super.onCreate(savedInstanceState);
 				setContentView(R.layout.main);
 				try {
-					logger = AndroidLogger.createInstance(getApplicationContext(), false, false, false, null, 0, "159axea4-xxxx-xxxx-xxxx-xxxxxxxxxxxx", true);
+					logger = AndroidLogger.createInstance(getApplicationContext(), false, false, false, null, 0, "159axea4-xxxx-xxxx-xxxx-xxxxxxxxxxxx", true, true);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -115,3 +115,4 @@ Note that exceptions are generate where mutually exclusive settings collide - th
 
 - 'logHostName' : if set true will return host name in log event
 
+- 'logTraceID' : if set true will return trace id in log event
