@@ -134,7 +134,7 @@ public class Utils {
      *
      * @return
      */
-    public static String formatMessage(String message, boolean logHostName, boolean isUsingHttp) {
+    public static String formatMessage(String message, boolean logTraceID, boolean logHostName, boolean isUsingHttp) {
         StringBuilder sb = new StringBuilder();
 
         if(isUsingHttp) {
@@ -147,8 +147,10 @@ public class Utils {
             sb.append(isUsingHttp ? ", " : " ");
         }
 
-        sb.append(Utils.getFormattedTraceID(isUsingHttp)).append(" ");
-        sb.append(isUsingHttp ? ", " : " ");
+        if (logTraceID) {
+            sb.append(Utils.getFormattedTraceID(isUsingHttp)).append(" ");
+            sb.append(isUsingHttp ? ", " : " ");
+        }
 
         long timestamp = System.currentTimeMillis(); // Current time in UTC in milliseconds.
         if(isUsingHttp) {

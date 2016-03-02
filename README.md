@@ -78,7 +78,7 @@ When a new instance of the Activity is created, a simple log event message is se
 				super.onCreate(savedInstanceState);
 				setContentView(R.layout.main);
 				try {
-					logger = AndroidLogger.createInstance(getApplicationContext(), false, false, false, null, 0, "159axea4-xxxx-xxxx-xxxx-xxxxxxxxxxxx", true);
+					logger = AndroidLogger.createInstance(getApplicationContext(), false, false, false, null, 0, "159axea4-xxxx-xxxx-xxxx-xxxxxxxxxxxx", true, true);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -88,7 +88,7 @@ When a new instance of the Activity is created, a simple log event message is se
 
 The number and type of arguments of the 'AndroidLogger.createInstance' are as follows:
 
-(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort, String token, boolean logHostName)
+(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort, String token, boolean logTraceID, boolean logHostName)
 
 Note that exceptions are generate where mutually exclusive settings collide - these are:
 	"useHttpPost" and "useSsl" cannot be both true - HTTP is not available with TLS/SSL
@@ -113,5 +113,6 @@ Note that exceptions are generate where mutually exclusive settings collide - th
 - 'token' : the Token UUID, this is unique to the log to which the log events are sent
  	This can be copied from the log in the the Logentries Account
 
-- 'logHostName' : if set true will return host name in log event
+- 'logTraceID' : if set true will return trace id in log event
 
+- 'logHostName' : if set true will return host name in log event
