@@ -1,14 +1,16 @@
 package com.logentries.logger;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import android.content.Context;
 import android.util.Log;
+
 import com.logentries.misc.Utils;
 import com.logentries.net.LogentriesClient;
+
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncLoggingWorker {
 
@@ -47,7 +49,7 @@ public class AsyncLoggingWorker {
     private LogStorage localStorage;
 
     public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPost, boolean useDataHub, String logToken,
-                              String dataHubAddress, int dataHubPort, boolean logHostName) throws IOException {
+                              String dataHubAddress, int dataHubPort, boolean logHostName, boolean useEncryptedHTTP) throws IOException {
 
         if(!checkTokenFormat(logToken)) {
             throw new IllegalArgumentException(INVALID_TOKEN);
@@ -55,22 +57,22 @@ public class AsyncLoggingWorker {
 
         queue = new ArrayBlockingQueue<String>(QUEUE_SIZE);
         localStorage = new LogStorage(context);
-        appender = new SocketAppender(useHttpPost, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName);
+        appender = new SocketAppender(useHttpPost, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName, useEncryptedHTTP);
         appender.start();
         started = true;
     }
 
     public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPost, String logToken) throws IOException {
-        this(context, useSsl, useHttpPost, false, logToken, null, 0, true);
+        this(context, useSsl, useHttpPost, false, logToken, null, 0, true, false);
     }
 
     public AsyncLoggingWorker(Context context, boolean useSsl, String logToken) throws IOException {
-        this(context, useSsl, false, false, logToken, null, 0, true);
+        this(context, useSsl, false, false, logToken, null, 0, true, false);
     }
 
     public AsyncLoggingWorker(Context context, boolean useSsl, String logToken, String dataHubAddr, int dataHubPort)
             throws IOException {
-        this(context, useSsl, false, true, logToken, dataHubAddr, dataHubPort, true);
+        this(context, useSsl, false, true, logToken, dataHubAddr, dataHubPort, true, false);
     }
 
     public void addLineToQueue(String line) {
@@ -155,6 +157,7 @@ public class AsyncLoggingWorker {
 
         // Formatting constants
         private static final String LINE_SEP_REPLACER = "\u2028";
+        private final boolean useEncryptedHTTP;
 
         private LogentriesClient leClient;
 
@@ -167,7 +170,7 @@ public class AsyncLoggingWorker {
         private boolean logHostName = true;
 
         public SocketAppender(boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
-                       String token, boolean logHostName) {
+                       String token, boolean logHostName, boolean useEncryptedHTTP) {
             super("Logentries Socket appender");
 
             // Don't block shut down
@@ -180,11 +183,12 @@ public class AsyncLoggingWorker {
             this.dataHubPort = dataHubPort;
             this.token = token;
             this.logHostName = logHostName;
+            this.useEncryptedHTTP = useEncryptedHTTP;
         }
 
         private void openConnection() throws IOException, InstantiationException {
             if(leClient == null){
-                leClient = new LogentriesClient(useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token);
+                leClient = new LogentriesClient(useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, useEncryptedHTTP);
             }
 
             leClient.connect();

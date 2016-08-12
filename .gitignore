@@ -5,3 +5,5 @@ build/
 # IntelliJ
 *.iml
 .idea/
+
+local.properties
