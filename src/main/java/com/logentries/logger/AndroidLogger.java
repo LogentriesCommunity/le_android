@@ -11,18 +11,24 @@ public class AndroidLogger {
     private AsyncLoggingWorker loggingWorker;
 
     private AndroidLogger(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
-                          String token, boolean logHostName) throws IOException {
-        loggingWorker = new AsyncLoggingWorker(context, useSsl, useHttpPost, isUsingDataHub, token, dataHubAddr, dataHubPort, logHostName);
+                          String token, boolean logHostName, boolean useEncryptedHTTP) throws IOException {
+        loggingWorker = new AsyncLoggingWorker(context, useSsl, useHttpPost, isUsingDataHub, token, dataHubAddr, dataHubPort, logHostName, useEncryptedHTTP);
     }
 
     public static synchronized AndroidLogger createInstance(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub,
                                                          String dataHubAddr, int dataHubPort, String token, boolean logHostName)
             throws IOException {
+        return createInstance(context, useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, logHostName, false);
+    }
+
+    public static synchronized AndroidLogger createInstance(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub,
+                                                            String dataHubAddr, int dataHubPort, String token, boolean logHostName, boolean useEncryptedHTTP)
+            throws IOException {
         if(instance != null) {
             instance.loggingWorker.close();
         }
 
-        instance = new AndroidLogger(context, useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, logHostName);
+        instance = new AndroidLogger(context, useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, logHostName, useEncryptedHTTP);
         return instance;
     }
 
