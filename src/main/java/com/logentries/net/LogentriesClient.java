@@ -5,12 +5,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
+
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 
 public class LogentriesClient
@@ -19,6 +20,7 @@ public class LogentriesClient
 	private static final String LE_TOKEN_API = "data.logentries.com"; // For token-based stream input
 
 	private static final String LE_HTTP_API = "http://js.logentries.com/v1/logs/";   // For HTTP-based input.
+        private static final String LE_HTTPS_API = "https://js.logentries.com/v1/logs/";   // For HTTPS-based input.
 
 	// Port number for unencrypted HTTP PUT/Token TCP logging on Logentries server.
 	private static final int LE_PORT = 80;
@@ -40,6 +42,7 @@ public class LogentriesClient
 
 	private boolean sslChoice = false;  // Use SSL layering for the Socket?
 	private boolean httpChoice = false; // Use HTTP input instead of token-based stream input?
+        private boolean encryptedHttpChoice = false; // Use HTTPS when logging via HTTP
 
 	// Datahub-related attributes.
 	private String dataHubServer = null;
@@ -50,7 +53,7 @@ public class LogentriesClient
 	private StringBuilder streamFormatter = new StringBuilder();
 
 	public LogentriesClient(boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String server, int port,
-							String token)
+							String token, boolean useEncryptedHTTP)
 			throws InstantiationException, IllegalArgumentException {
 
 		if(useHttpPost && isUsingDataHub) {
@@ -72,6 +75,7 @@ public class LogentriesClient
 		sslChoice = useSsl;
 		httpChoice = useHttpPost;
 		endpointToken = token;
+                encryptedHttpChoice = useEncryptedHTTP;
 
 		if(useDataHub) {
 			if (server == null || server.isEmpty()) {
@@ -116,7 +120,7 @@ public class LogentriesClient
 			return dataHubServer;
 		} else {
 			if(httpChoice) {
-				return LE_HTTP_API;
+			        return (encryptedHttpChoice) ? LE_HTTPS_API : LE_HTTP_API;
 			}
 			return LE_TOKEN_API;
 		}
