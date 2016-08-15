@@ -5,13 +5,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 public class LogentriesClient
 {
@@ -19,6 +19,7 @@ public class LogentriesClient
 	private static final String LE_TOKEN_API = "data.logentries.com"; // For token-based stream input
 
 	private static final String LE_HTTP_API = "http://js.logentries.com/v1/logs/";   // For HTTP-based input.
+	private static final String LE_HTTPS_API = "https://js.logentries.com/v1/logs/";   // For HTTP-based input.
 
 	// Port number for unencrypted HTTP PUT/Token TCP logging on Logentries server.
 	private static final int LE_PORT = 80;
@@ -55,12 +56,6 @@ public class LogentriesClient
 
 		if(useHttpPost && isUsingDataHub) {
 			throw new IllegalArgumentException("'httpPost' parameter cannot be set to true if 'isUsingDataHub' " +
-					"is set to true.");
-		}
-
-		//SSL to be used only with TCP Token
-		if(useHttpPost && useSsl) {
-			throw new IllegalArgumentException("'httpPost' parameter cannot be set to true if 'useSsl' " +
 					"is set to true.");
 		}
 
@@ -116,7 +111,7 @@ public class LogentriesClient
 			return dataHubServer;
 		} else {
 			if(httpChoice) {
-				return LE_HTTP_API;
+				return sslChoice ? LE_HTTPS_API : LE_HTTP_API;
 			}
 			return LE_TOKEN_API;
 		}

@@ -26,7 +26,7 @@ publishing {
             from components.java
             groupId 'com.logentries'
             artifactId 'logentries-android'
-            version '3.0.2'
+            version '3.0.3'
         }
     }
 }
