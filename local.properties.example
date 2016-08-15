@@ -1,0 +1,6 @@
+bintray.userorg=mnscorp
+bintray.user=samhandev
+bintray.apikey=<your-api-key>
+siteurl=https://github.com/samhandev/le_android
+gitrurl=https://github.com/samhandev/le_android.git
+issueurl=https://github.com/samhandev/le_android/issues

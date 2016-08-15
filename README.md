@@ -115,3 +115,20 @@ Note that exceptions are generate where mutually exclusive settings collide - th
 
 - 'logHostName' : if set true will return host name in log event
 
+
+Development
+-----------
+
+Build the project into a jar using:
+
+    $ ./gradlew jar
+
+You can also upload the jar to `bintray` using:
+
+    $ ./gradlew bintrayUpload
+
+In order to upload to `bintray` you will need to set up some values in a `local.properties` file.
+This file should contain your `bintray` information and also your repo settings.
+
+Once uploaded to `bintray` you should be able to add this library as a dependency as normal using in your `pom.xml` or `build.gradle` file.
+More details on which `repo` to include can be found on the `bintray` website.
