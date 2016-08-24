@@ -20,13 +20,15 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version:'3.8.1'
 }
 
+def versionNumber = '4.0.0'
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
             groupId 'com.logentries'
             artifactId 'logentries-android'
-            version '3.0.3'
+            version versionNumber
         }
     }
 }
@@ -58,6 +60,10 @@ bintray {
         vcsUrl = gitUrl
         licenses = ['Apache-2.0']
         publicDownloadNumbers = true
+        version {
+            name = versionNumber
+            desc = 'Logentries for android'
+        }
     }
 }
 
