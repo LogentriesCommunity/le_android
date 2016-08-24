@@ -1,5 +1,8 @@
 package com.logentries.misc;
 
+import android.os.Build;
+import android.util.Log;
+
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -8,9 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
-import android.os.Build;
-import android.util.Log;
 
 public class Utils {
 
@@ -104,6 +104,14 @@ public class Utils {
         return traceID;
     }
 
+
+    private static String getFormattedDeviceId(boolean toJSON) {
+        if(toJSON) {
+            return "\"DeviceId\": \"" + Build.SERIAL + "\"";
+        }
+        return "DeviceId=" + Build.SERIAL;
+    }
+
     public static String getFormattedTraceID(boolean toJSON) {
         if(toJSON) {
             return "\"TraceID\": \"" + traceID + "\"";
@@ -148,6 +156,10 @@ public class Utils {
         }
 
         sb.append(Utils.getFormattedTraceID(isUsingHttp)).append(" ");
+        sb.append(isUsingHttp ? ", " : " ");
+
+
+        sb.append(Utils.getFormattedDeviceId(isUsingHttp)).append(" ");
         sb.append(isUsingHttp ? ", " : " ");
 
         long timestamp = System.currentTimeMillis(); // Current time in UTC in milliseconds.
