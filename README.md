@@ -1,4 +1,4 @@
-# Logging support for Android devices [![](https://jitpack.io/v/kibotu/le_android.svg)](https://jitpack.io/#kibotu/le_android) [![Build Status](https://travis-ci.org/LogentriesCommunity/le_android.svg)](https://travis-ci.org/LogentriesCommunity/le_android)  [![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=15)  [![Gradle Version](https://img.shields.io/badge/gradle-3.0-green.svg)](https://docs.gradle.org/current/release-notes) [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/mdp/rotp/blob/master/LICENSE) [![Javadoc](https://img.shields.io/badge/javadoc-SNAPSHOT-green.svg)](https://jitpack.io/com/github/kibotu/le_android/master-SNAPSHOT/javadoc/index.html)
+# Logging support for Android devices [![](https://jitpack.io/v/LogentriesCommunity/le_android.svg)](https://jitpack.io/#LogentriesCommunity/le_android) [![Build Status](https://travis-ci.org/LogentriesCommunity/le_android.svg)](https://travis-ci.org/LogentriesCommunity/le_android)  [![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=15)  [![Gradle Version](https://img.shields.io/badge/gradle-3.0-green.svg)](https://docs.gradle.org/current/release-notes) [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/mdp/rotp/blob/master/LICENSE) [![Javadoc](https://img.shields.io/badge/javadoc-SNAPSHOT-green.svg)](https://jitpack.io/com/github/kibotu/le_android/master-SNAPSHOT/javadoc/index.html)
 
 
 Build requirements: Android SDK 2.3+
@@ -43,10 +43,9 @@ Setup
 
 Set up an account with Logentries at <https://logentries.com/>, and create a logfile, by clicking + Add New button and selecting the Manual Configuration Option at the bottom. Select Token TCP as the source type and copy the Token UUID printed in green.
 
-Next, download the library jar file [here](https://github.com/LogentriesCommunity/le_android/blob/master/logentries-android.jar) and place it in the /yourProject/libs folder of your Android project.
+Next go to https://jitpack.io/#LogentriesCommunity/le_android and select the latest version of the Android library.
 
 Add the permission "android.permission.INTERNET" to the project manifest file.
-
 
 Use
 ---
