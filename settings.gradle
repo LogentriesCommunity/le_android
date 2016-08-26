@@ -1,1 +1,1 @@
-rootProject.name = 'logentries-android'
+include ':lib'
