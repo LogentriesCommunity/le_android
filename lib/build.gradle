@@ -3,7 +3,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 android {
 
-    useLibrary 'org.apache.http.legacy'
+    // apparently javadoc fails using this:
+    // useLibrary 'org.apache.http.legacy'
 
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
@@ -26,6 +27,7 @@ android {
 }
 
 dependencies {
+    compile group: 'org.jbundle.util.osgi.wrapped', name: 'org.jbundle.util.osgi.wrapped.org.apache.http.client', version: '4.1.2'
 }
 
 // build a jar with source files
