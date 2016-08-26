@@ -16,9 +16,9 @@ public class AndroidLogger {
     }
 
     public static synchronized AndroidLogger createInstance(Context context, boolean useHttpPost, boolean useSsl, boolean isUsingDataHub,
-                                                         String dataHubAddr, int dataHubPort, String token, boolean logHostName)
+                                                            String dataHubAddr, int dataHubPort, String token, boolean logHostName)
             throws IOException {
-        if(instance != null) {
+        if (instance != null) {
             instance.loggingWorker.close();
         }
 
@@ -27,7 +27,7 @@ public class AndroidLogger {
     }
 
     public static synchronized AndroidLogger getInstance() {
-        if(instance != null) {
+        if (instance != null) {
             return instance;
         } else {
             throw new IllegalArgumentException("Logger instance is not initialized. Call createInstance() first!");

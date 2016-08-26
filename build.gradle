@@ -6,14 +6,9 @@ plugins {
 
 description = """logentries-android"""
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-
 repositories {
     maven { url "http://repo.maven.apache.org/maven2" }
 }
-
 
 dependencies {
     compile group: 'com.google.android', name: 'android', version:'4.1.1.4'
@@ -68,5 +63,8 @@ bintray {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.4'
+    gradleVersion = '3.0'
+}
+
+task install(dependsOn: build) {
 }

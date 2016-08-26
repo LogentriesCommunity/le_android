@@ -16,7 +16,9 @@ public class Utils {
 
     private static final String TAG = "LogentriesAndroidLogger";
 
-    /** Reg.ex. that is used to check correctness of HostName if it is defined by user */
+    /**
+     * Reg.ex. that is used to check correctness of HostName if it is defined by user
+     */
     private static final Pattern HOSTNAME_REGEX = Pattern.compile("[$/\\\"&+,:;=?#|<>_* \\[\\]]");
 
     private static String traceID = "";
@@ -26,27 +28,26 @@ public class Utils {
     static {
         try {
             traceID = computeTraceID();
-        } catch(NoSuchAlgorithmException ex) {
+        } catch (NoSuchAlgorithmException ex) {
             Log.e(TAG, "Cannot get traceID from device's properties!");
             traceID = "unknown";
         }
 
         try {
             hostName = getProp("net.hostname");
-            if(hostName.equals("")) { // We have failed to get the real host name
-                                      // so, use the default one.
+            if (hostName.equals("")) { // We have failed to get the real host name
+                // so, use the default one.
                 hostName = InetAddress.getLocalHost().getHostName();
             }
-        }
-        catch (UnknownHostException e) {
+        } catch (UnknownHostException e) {
             // We cannot resolve local host name - so won't use it at all.
         }
     }
 
     private static String getProp(String propertyName) {
 
-        if(propertyName == null || propertyName.isEmpty()) {
-           return "";
+        if (propertyName == null || propertyName.isEmpty()) {
+            return "";
         }
 
         try {
@@ -71,7 +72,7 @@ public class Utils {
 
         MessageDigest hashGen = MessageDigest.getInstance("MD5");
         byte[] digest = null;
-        if(fingerprint.isEmpty() & displayId.isEmpty() & hardware.isEmpty() & device.isEmpty() & rilImei.isEmpty()) {
+        if (fingerprint.isEmpty() & displayId.isEmpty() & hardware.isEmpty() & device.isEmpty() & rilImei.isEmpty()) {
             Log.e(TAG, "Cannot obtain any of device's properties - will use default Trace ID source.");
 
             Double randomTrace = Math.random() + Math.PI;
@@ -93,7 +94,7 @@ public class Utils {
 
         digest = hashGen.digest();
         StringBuilder conv = new StringBuilder();
-        for (byte b: digest) {
+        for (byte b : digest) {
             conv.append(String.format("%02x", b & 0xff).toUpperCase());
         }
 
@@ -106,14 +107,14 @@ public class Utils {
 
 
     private static String getFormattedDeviceId(boolean toJSON) {
-        if(toJSON) {
+        if (toJSON) {
             return "\"DeviceId\": \"" + Build.SERIAL + "\"";
         }
         return "DeviceId=" + Build.SERIAL;
     }
 
     public static String getFormattedTraceID(boolean toJSON) {
-        if(toJSON) {
+        if (toJSON) {
             return "\"TraceID\": \"" + traceID + "\"";
         }
         return "TraceID=" + traceID;
@@ -124,33 +125,34 @@ public class Utils {
     }
 
     public static String getFormattedHostName(boolean toJSON) {
-        if(toJSON) {
+        if (toJSON) {
             return "\"Host\": \"" + hostName + "\"";
         }
         return "Host=" + hostName;
     }
 
-    /** Formats given message to make it suitable for ingestion by Logentris endpoint.
-     *  If isUsingHttp == true, the method produces such structure:
-        {"event": {"Host": "SOMEHOST", "Timestamp": 12345, "DeviceID": "DEV_ID", "Message": "MESSAGE"}}
-
-        If isUsingHttp == false the output will be like this:
-        Host=SOMEHOST Timestamp=12345 DeviceID=DEV_ID MESSAGE
-     * @param message Message to be sent to Logentries
+    /**
+     * Formats given message to make it suitable for ingestion by Logentris endpoint.
+     * If isUsingHttp == true, the method produces such structure:
+     * {"event": {"Host": "SOMEHOST", "Timestamp": 12345, "DeviceID": "DEV_ID", "Message": "MESSAGE"}}
+     * <p>
+     * If isUsingHttp == false the output will be like this:
+     * Host=SOMEHOST Timestamp=12345 DeviceID=DEV_ID MESSAGE
+     *
+     * @param message     Message to be sent to Logentries
      * @param logHostName - if set to true - "Host"=HOSTNAME parameter is appended to the message.
      * @param isUsingHttp will be using http
-     *
      * @return
      */
     public static String formatMessage(String message, boolean logHostName, boolean isUsingHttp) {
         StringBuilder sb = new StringBuilder();
 
-        if(isUsingHttp) {
+        if (isUsingHttp) {
             // Add 'event' structure.
             sb.append("{\"event\": {");
         }
 
-        if(logHostName) {
+        if (logHostName) {
             sb.append(Utils.getFormattedHostName(isUsingHttp));
             sb.append(isUsingHttp ? ", " : " ");
         }
@@ -163,14 +165,14 @@ public class Utils {
         sb.append(isUsingHttp ? ", " : " ");
 
         long timestamp = System.currentTimeMillis(); // Current time in UTC in milliseconds.
-        if(isUsingHttp) {
+        if (isUsingHttp) {
             sb.append("\"Timestamp\": ").append(Long.toString(timestamp)).append(", ");
         } else {
             sb.append("Timestamp=").append(Long.toString(timestamp)).append(" ");
         }
 
         // Append the event data
-        if(isUsingHttp) {
+        if (isUsingHttp) {
             sb.append("\"Message\": \"").append(message);
             sb.append("\"}}");
         } else {
@@ -180,8 +182,8 @@ public class Utils {
         return sb.toString();
     }
 
-    public static boolean checkValidUUID(String uuid){
-        if(uuid != null && !uuid.isEmpty()) {
+    public static boolean checkValidUUID(String uuid) {
+        if (uuid != null && !uuid.isEmpty()) {
             try {
 
                 UUID u = UUID.fromString(uuid);
@@ -199,27 +201,25 @@ public class Utils {
     }
 
     public static String[] splitStringToChunks(String source, int chunkLength) {
-        if(chunkLength < 0) {
+        if (chunkLength < 0) {
             throw new IllegalArgumentException("Chunk length must be greater or equal to zero!");
         }
 
         int srcLength = source.length();
-        if(chunkLength == 0 || srcLength <= chunkLength) {
-            return new String[] { source };
+        if (chunkLength == 0 || srcLength <= chunkLength) {
+            return new String[]{source};
         }
 
         ArrayList<String> chunkBuffer = new ArrayList<String>();
         int splitSteps = srcLength / chunkLength + (srcLength % chunkLength > 0 ? 1 : 0);
 
         int lastCutPosition = 0;
-        for(int i = 0; i < splitSteps; ++i) {
+        for (int i = 0; i < splitSteps; ++i) {
 
-            if(i < splitSteps - 1) {
+            if (i < splitSteps - 1) {
                 // Cut out the chunk of the requested size.
                 chunkBuffer.add(source.substring(lastCutPosition, lastCutPosition + chunkLength));
-            }
-            else
-            {
+            } else {
                 // Cut out all that left to the end of the string.
                 chunkBuffer.add(source.substring(lastCutPosition));
             }

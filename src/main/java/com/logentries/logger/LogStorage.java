@@ -3,8 +3,15 @@ package com.logentries.logger;
 import android.content.Context;
 import android.util.Log;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 public class LogStorage {
 
@@ -15,7 +22,7 @@ public class LogStorage {
     private Context context;
 
     private File storageFilePtr = null; // We keep the ptr permanently, because frequently accessing
-                                        // the file for retrieving it's size.
+    // the file for retrieving it's size.
 
     public LogStorage(Context context) throws IOException {
         this.context = context;
@@ -25,7 +32,7 @@ public class LogStorage {
     public void putLogToStorage(String message) throws IOException, RuntimeException {
 
         // Fix line endings for ingesting the log to the local storage.
-        if(!message.endsWith("\n")) {
+        if (!message.endsWith("\n")) {
             message += "\n";
         }
 
@@ -34,8 +41,8 @@ public class LogStorage {
             byte[] rawMessage = message.getBytes();
             long currSize = getCurrentStorageFileSize() + rawMessage.length;
             String sizeStr = Long.toString(currSize);
-            Log.d(TAG,"Current size: " + sizeStr);
-            if(currSize >= MAX_QUEUE_FILE_SIZE) {
+            Log.d(TAG, "Current size: " + sizeStr);
+            if (currSize >= MAX_QUEUE_FILE_SIZE) {
                 Log.d(TAG, "Log storage will be cleared because threshold of " + MAX_QUEUE_FILE_SIZE + " bytes has been reached");
                 reCreateStorageFile();
             }
@@ -44,7 +51,7 @@ public class LogStorage {
             writer.write(rawMessage);
 
         } finally {
-            if(writer != null) {
+            if (writer != null) {
                 writer.close();
             }
         }
@@ -60,12 +67,12 @@ public class LogStorage {
             BufferedReader bufReader = new BufferedReader(new InputStreamReader(inputStream));
 
             String logLine = bufReader.readLine();
-            while(logLine != null) {
+            while (logLine != null) {
                 logs.offer(logLine);
                 logLine = bufReader.readLine();
             }
 
-            if(needToRemoveStorageFile) {
+            if (needToRemoveStorageFile) {
                 removeStorageFile();
             }
 
@@ -75,7 +82,7 @@ public class LogStorage {
             // logs list.
         } finally {
             try {
-                if(input != null) {
+                if (input != null) {
                     input.close();
                 }
             } catch (IOException ex2) {
@@ -87,14 +94,14 @@ public class LogStorage {
     }
 
     public void removeStorageFile() throws IOException {
-        if(!storageFilePtr.delete()) {
+        if (!storageFilePtr.delete()) {
             throw new IOException("Cannot delete " + STORAGE_FILE_NAME);
         }
     }
 
     public void reCreateStorageFile() throws IOException {
         Log.d(TAG, "Log storage has been re-created.");
-        if(storageFilePtr == null) {
+        if (storageFilePtr == null) {
             storageFilePtr = create();
         } else {
             removeStorageFile();
@@ -107,7 +114,7 @@ public class LogStorage {
     }
 
     private long getCurrentStorageFileSize() throws IOException {
-        if(storageFilePtr == null) {
+        if (storageFilePtr == null) {
             storageFilePtr = create();
         }
 

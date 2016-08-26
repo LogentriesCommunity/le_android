@@ -1,55 +1,73 @@
 package com.logentries.logger;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import android.content.Context;
 import android.util.Log;
+
 import com.logentries.misc.Utils;
 import com.logentries.net.LogentriesClient;
+
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncLoggingWorker {
 
 	/*
-	 * Constants
+     * Constants
 	 */
 
     private static final String TAG = "LogentriesAndroidLogger";
 
     private static final int RECONNECT_WAIT = 100; // milliseconds.
     private static final int MAX_QUEUE_POLL_TIME = 1000; // milliseconds.
-    /** Size of the internal event queue. */
+    /**
+     * Size of the internal event queue.
+     */
     private static final int QUEUE_SIZE = 32768;
-    /** Limit on individual log length ie. 2^16*/
+    /**
+     * Limit on individual log length ie. 2^16
+     */
     public static final int LOG_LENGTH_LIMIT = 65536;
 
     private static final int MAX_NETWORK_FAILURES_ALLOWED = 3;
     private static final int MAX_RECONNECT_ATTEMPTS = 3;
 
-    /** Error message displayed when invalid API key is detected. */
+    /**
+     * Error message displayed when invalid API key is detected.
+     */
     private static final String INVALID_TOKEN = "Given Token does not look right!";
 
-    /** Error message displayed when queue overflow occurs */
+    /**
+     * Error message displayed when queue overflow occurs
+     */
     private static final String QUEUE_OVERFLOW = "Logentries Buffer Queue Overflow. Message Dropped!";
 
-    /** Indicator if the socket appender has been started. */
+    /**
+     * Indicator if the socket appender has been started.
+     */
     private boolean started = false;
 
-    /** Asynchronous socket appender. */
+    /**
+     * Asynchronous socket appender.
+     */
     private SocketAppender appender;
 
-    /** Message queue. */
+    /**
+     * Message queue.
+     */
     private ArrayBlockingQueue<String> queue;
 
-    /** Logs queue storage */
+    /**
+     * Logs queue storage
+     */
     private LogStorage localStorage;
 
     public AsyncLoggingWorker(Context context, boolean useSsl, boolean useHttpPost, boolean useDataHub, String logToken,
                               String dataHubAddress, int dataHubPort, boolean logHostName) throws IOException {
 
-        if(!checkTokenFormat(logToken)) {
+        if (!checkTokenFormat(logToken)) {
             throw new IllegalArgumentException(INVALID_TOKEN);
         }
 
@@ -83,7 +101,7 @@ public class AsyncLoggingWorker {
         }
 
         if (line.length() > LOG_LENGTH_LIMIT) {
-            for(String logChunk: Utils.splitStringToChunks(line, LOG_LENGTH_LIMIT)) {
+            for (String logChunk : Utils.splitStringToChunks(line, LOG_LENGTH_LIMIT)) {
                 tryOfferToQueue(logChunk);
             }
 
@@ -101,16 +119,15 @@ public class AsyncLoggingWorker {
      * @param queueFlushTimeout - max. wait time in milliseconds for the message queue to be flushed.
      */
     public void close(long queueFlushTimeout) {
-        if(queueFlushTimeout < 0) {
+        if (queueFlushTimeout < 0) {
             throw new IllegalArgumentException("queueFlushTimeout must be greater or equal to zero");
         }
 
         long now = System.currentTimeMillis();
 
-        while(!queue.isEmpty())
-        {
-            if(queueFlushTimeout != 0) {
-                if(System.currentTimeMillis() - now >= queueFlushTimeout) {
+        while (!queue.isEmpty()) {
+            if (queueFlushTimeout != 0) {
+                if (System.currentTimeMillis() - now >= queueFlushTimeout) {
                     // The timeout expired - need to stop the appender.
                     break;
                 }
@@ -130,7 +147,7 @@ public class AsyncLoggingWorker {
     }
 
     private void tryOfferToQueue(String line) throws RuntimeException {
-        if(!queue.offer(line)) {
+        if (!queue.offer(line)) {
             Log.e(TAG, "The queue is full - will try to drop the oldest message in it.");
             queue.poll();
             /*
@@ -145,7 +162,7 @@ public class AsyncLoggingWorker {
             rareness of the case with queue overflow.
              */
 
-            if(!queue.offer(line)) {
+            if (!queue.offer(line)) {
                 throw new RuntimeException(QUEUE_OVERFLOW);
             }
         }
@@ -167,7 +184,7 @@ public class AsyncLoggingWorker {
         private boolean logHostName = true;
 
         public SocketAppender(boolean useHttpPost, boolean useSsl, boolean isUsingDataHub, String dataHubAddr, int dataHubPort,
-                       String token, boolean logHostName) {
+                              String token, boolean logHostName) {
             super("Logentries Socket appender");
 
             // Don't block shut down
@@ -183,7 +200,7 @@ public class AsyncLoggingWorker {
         }
 
         private void openConnection() throws IOException, InstantiationException {
-            if(leClient == null){
+            if (leClient == null) {
                 leClient = new LogentriesClient(useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token);
             }
 
@@ -191,14 +208,14 @@ public class AsyncLoggingWorker {
         }
 
         private boolean reopenConnection(int maxReConnectAttempts) throws InterruptedException, InstantiationException {
-            if(maxReConnectAttempts < 0) {
+            if (maxReConnectAttempts < 0) {
                 throw new IllegalArgumentException("maxReConnectAttempts value must be greater or equal to zero");
             }
 
             // Close the previous connection
             closeConnection();
 
-            for(int attempt = 0; attempt < maxReConnectAttempts; ++attempt) {
+            for (int attempt = 0; attempt < maxReConnectAttempts; ++attempt) {
                 try {
 
                     openConnection();
@@ -228,7 +245,7 @@ public class AsyncLoggingWorker {
             try {
 
                 logs = localStorage.getAllLogsFromStorage(false);
-                for(String msg = logs.peek(); msg != null; msg = logs.peek()) {
+                for (String msg = logs.peek(); msg != null; msg = logs.peek()) {
                     leClient.write(Utils.formatMessage(msg.replace("\n", LINE_SEP_REPLACER),
                             logHostName, useHttpPost));
                     logs.poll(); // Remove the message after successful sending.
@@ -249,7 +266,7 @@ public class AsyncLoggingWorker {
                 // Try to save back all messages, that haven't been sent yet.
                 try {
                     localStorage.reCreateStorageFile();
-                    for(String msg: logs) {
+                    for (String msg : logs) {
                         localStorage.putLogToStorage(msg);
                     }
                 } catch (IOException ioEx2) {
@@ -275,12 +292,12 @@ public class AsyncLoggingWorker {
                 String message = null;
 
                 // Send data in queue
-                while(true) {
+                while (true) {
 
                     // First we need to send the logs from the local storage -
                     // they haven't been sent during the last session, so need to
                     // come first.
-                    if(prevSavedLogs.isEmpty()) {
+                    if (prevSavedLogs.isEmpty()) {
 
                         // Try to take data from the queue if there are no logs from
                         // the local storage left to send.
@@ -299,14 +316,14 @@ public class AsyncLoggingWorker {
 
                             // If we have broken connection, then try to re-connect and send
                             // all logs from the local storage. If succeeded - reset numFailures.
-                            if(connectionIsBroken && reopenConnection(MAX_RECONNECT_ATTEMPTS)) {
-                                if(tryUploadSavedLogs()) {
+                            if (connectionIsBroken && reopenConnection(MAX_RECONNECT_ATTEMPTS)) {
+                                if (tryUploadSavedLogs()) {
                                     connectionIsBroken = false;
                                     numFailures = 0;
                                 }
                             }
 
-                            if(message != null) {
+                            if (message != null) {
                                 this.leClient.write(Utils.formatMessage(message.replace("\n", LINE_SEP_REPLACER),
                                         logHostName, useHttpPost));
                                 message = null;
@@ -314,15 +331,15 @@ public class AsyncLoggingWorker {
 
                         } catch (IOException e) {
 
-                            if(numFailures >= MAX_NETWORK_FAILURES_ALLOWED) {
+                            if (numFailures >= MAX_NETWORK_FAILURES_ALLOWED) {
                                 connectionIsBroken = true; // Have tried to reconnect for MAX_NETWORK_FAILURES_ALLOWED
-                                                           // times and failed, so assume, that we have no link to the
-                                                           // server at all...
+                                // times and failed, so assume, that we have no link to the
+                                // server at all...
                                 try {
                                     // ... and put the current message to the local storage.
                                     localStorage.putLogToStorage(message);
                                     message = null;
-                                } catch(IOException ex) {
+                                } catch (IOException ex) {
                                     Log.e(TAG, "Cannot save the log message to the local storage! Error: " +
                                             ex.getMessage());
                                 }
@@ -350,7 +367,7 @@ public class AsyncLoggingWorker {
                 // There is nothing we can do else in this case.
                 String message = queue.poll();
                 try {
-                    while(message != null) {
+                    while (message != null) {
                         localStorage.putLogToStorage(message);
                         message = queue.poll();
                     }
