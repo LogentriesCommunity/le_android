@@ -2,6 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
+
+    useLibrary 'org.apache.http.legacy'
+
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
 
