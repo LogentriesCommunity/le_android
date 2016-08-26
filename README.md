@@ -1,5 +1,6 @@
 # Logging support for Android devices [![](https://jitpack.io/v/kibotu/le_android.svg)](https://jitpack.io/#kibotu/le_android) [![Build Status](https://travis-ci.org/kibotu/le_android.svg)](https://travis-ci.org/kibotu/le_android)  [![API](https://img.shields.io/badge/API-15%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=15)  [![Gradle Version](https://img.shields.io/badge/gradle-3.0-green.svg)](https://docs.gradle.org/current/release-notes) [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/mdp/rotp/blob/master/LICENSE) [![Javadoc](https://img.shields.io/badge/javadoc-SNAPSHOT-green.svg)](https://jitpack.io/com/github/kibotu/le_android/master-SNAPSHOT/javadoc/index.html)
 
+
 Build requirements: Android SDK 2.3+
 
 Runtime requirements: Android OS 2.3+
