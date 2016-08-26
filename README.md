@@ -43,7 +43,7 @@ Setup
 
 Set up an account with Logentries at <https://logentries.com/>, and create a logfile, by clicking + Add New button and selecting the Manual Configuration Option at the bottom. Select Token TCP as the source type and copy the Token UUID printed in green.
 
-Next go to https://jitpack.io/#LogentriesCommunity/le_android and select the latest version of the Android library.
+Next go to [Jitpack](https://jitpack.io/#LogentriesCommunity/le_android) and select the latest version of the Android library.
 
 Add the permission "android.permission.INTERNET" to the project manifest file.
 
