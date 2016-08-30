@@ -15,10 +15,10 @@ import javax.net.ssl.SSLSocketFactory;
 
 public class LogentriesClient {
     // Logentries server endpoints for logs data.
-    private static final String LE_TOKEN_API = "data.com.logentries.com"; // For token-based stream input
+    private static final String LE_TOKEN_API = "data.logentries.com"; // For token-based stream input
 
-    private static final String LE_HTTP_API = "http://js.com.logentries.com/v1/logs/";   // For HTTP-based input.
-    private static final String LE_HTTPS_API = "https://js.com.logentries.com/v1/logs/";   // For HTTP-based input.
+    private static final String LE_HTTP_API = "http://webhook.logentries.com/noformat/logs/";   // For HTTP-based input.
+    private static final String LE_HTTPS_API = "https://webhook.logentries.com/noformat/logs/";   // For HTTP-based input.
 
     // Port number for unencrypted HTTP PUT/Token TCP logging on Logentries server.
     private static final int LE_PORT = 80;
