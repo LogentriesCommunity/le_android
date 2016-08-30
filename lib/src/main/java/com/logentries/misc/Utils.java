@@ -138,7 +138,7 @@ public class Utils {
     /**
     *  Via http://stackoverflow.com/a/10174938
     */
-    public boolean isJSONValid(String message) {
+    public static boolean isJSONValid(String message) {
         try {
             new JSONObject(message);
         } catch (JSONException ex) {
