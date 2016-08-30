@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Utils {
 
     private static final String TAG = "LogentriesAndroidLogger";
@@ -132,6 +136,22 @@ public class Utils {
     }
 
     /**
+    *  Via http://stackoverflow.com/a/10174938
+    */
+    public static boolean isJSONValid(String message) {
+        try {
+            new JSONObject(message);
+        } catch (JSONException ex) {
+            try {
+                new JSONArray(message);
+            } catch (JSONException ex1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Formats given message to make it suitable for ingestion by Logentris endpoint.
      * If isUsingHttp == true, the method produces such structure:
      * {"event": {"Host": "SOMEHOST", "Timestamp": 12345, "DeviceID": "DEV_ID", "Message": "MESSAGE"}}
@@ -173,8 +193,14 @@ public class Utils {
 
         // Append the event data
         if (isUsingHttp) {
-            sb.append("\"Message\": \"").append(message);
-            sb.append("\"}}");
+            if (Utils.isJSONValid(message)) {
+                sb.append("\"Message\":").append(message);
+                sb.append("}}");
+            } else {
+                sb.append("\"Message\": \"").append(message);
+                sb.append("\"}}");
+            }
+
         } else {
             sb.append(message);
         }
