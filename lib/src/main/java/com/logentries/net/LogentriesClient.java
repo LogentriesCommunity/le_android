@@ -1,6 +1,7 @@
 package com.logentries.net;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -12,6 +13,8 @@ import java.nio.charset.Charset;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+
+import android.util.Log;
 
 public class LogentriesClient {
     // Logentries server endpoints for logs data.
@@ -148,7 +151,12 @@ public class LogentriesClient {
         } else {
             // HTTP input mode.
             postRequest.setEntity(new StringEntity(data, "UTF8"));
-            httpClient.execute(postRequest);
+            try {
+                httpClient.execute(postRequest);
+            } catch (HttpResponseException ex) {
+                Log.e("LogentriesAndroidLogger", "Received status code:" + ex.getStatusCode());
+                Log.e("LogentriesAndroidLogger", "Error message:" + ex.getMessage());
+            }
         }
     }
 
