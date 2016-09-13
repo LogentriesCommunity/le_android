@@ -34,6 +34,22 @@ public class AndroidLogger {
         }
     }
 
+    /**
+     *  Set whether you wish to send your log message without additional meta data to Logentries.
+     * @param sendRawLogMessage Set to true if you wish to send raw log messages
+     */
+    public void setSendRawLogMessage(boolean sendRawLogMessage){
+        loggingWorker.setSendRawLogMessage(sendRawLogMessage);
+    }
+
+    /**
+     *  Returns whether the logger is configured to send raw log messages or not.
+     * @return
+     */
+    public boolean getSendRawLogMessage(){
+        return loggingWorker.getSendRawLogMessage();
+    }
+
     public void log(String message) {
         loggingWorker.addLineToQueue(message);
     }
