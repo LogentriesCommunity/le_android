@@ -78,7 +78,7 @@ public class AsyncLoggingWorker {
 
         queue = new ArrayBlockingQueue<String>(QUEUE_SIZE);
         localStorage = new LogStorage(context);
-        appender = new SocketAppender(useHttpPost, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName, sendRawLogMessage);
+        appender = new SocketAppender(useHttpPost, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName, this.sendRawLogMessage);
         appender.start();
         started = true;
     }
