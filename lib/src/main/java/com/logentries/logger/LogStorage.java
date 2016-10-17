@@ -41,7 +41,7 @@ public class LogStorage {
             byte[] rawMessage = message.getBytes();
             long currSize = getCurrentStorageFileSize() + rawMessage.length;
             String sizeStr = Long.toString(currSize);
-            Log.d(TAG, "Current size: " + sizeStr);
+            //Log.d(TAG, "Current size: " + sizeStr);
             if (currSize >= MAX_QUEUE_FILE_SIZE) {
                 Log.d(TAG, "Log storage will be cleared because threshold of " + MAX_QUEUE_FILE_SIZE + " bytes has been reached");
                 reCreateStorageFile();
