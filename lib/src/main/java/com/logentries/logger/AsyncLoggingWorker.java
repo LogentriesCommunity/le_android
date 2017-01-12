@@ -342,8 +342,11 @@ public class AsyncLoggingWorker {
                             }
 
                             if (message != null) {
-                                this.leClient.write(Utils.formatMessage(message.replace("\n", LINE_SEP_REPLACER),
-                                        logHostName, useHttpPost));
+                                if(sendRawLogMessage){
+                                    this.leClient.write(Utils.formatMessage(message.replace("\n", LINE_SEP_REPLACER),logHostName, useHttpPost));
+                                }else{
+                                    this.leClient.write(message.replace("\n", LINE_SEP_REPLACER));
+                                }
                                 message = null;
                             }
 
