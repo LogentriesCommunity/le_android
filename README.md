@@ -47,6 +47,8 @@ Next go to [Jitpack](https://jitpack.io/#LogentriesCommunity/le_android) and sel
 
 Add the permission "android.permission.INTERNET" to the project manifest file.
 
+If you use Proguard, add this line : -dontwarn org.apache.**
+
 Use
 ---
 
